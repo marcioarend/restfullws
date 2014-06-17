@@ -1,14 +1,18 @@
 package br.com.k19.models;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class Banda {
 
-	private String nome;
-	private int anoDeFormacao;
-	private int id;
+	 
+	String nome;
+	int anoDeFormacao;
+	
+	int id;
 
+	@XmlElement(name="nome")
 	public String getNome() {
 		return nome;
 	}
@@ -17,6 +21,7 @@ public class Banda {
 		this.nome = nome;
 	}
 
+	@XmlElement(name="ano")
 	public int getAnoDeFormacao() {
 		return anoDeFormacao;
 	}
@@ -25,6 +30,7 @@ public class Banda {
 		this.anoDeFormacao = anoDeFormacao;
 	}
 
+	@XmlElement(name="id")
 	public int getId() {
 		return id;
 	}
@@ -32,5 +38,13 @@ public class Banda {
 	public void setId(int id) {
 		this.id = id;
 	}
+
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return "";
+	}
+	
+	
 
 }

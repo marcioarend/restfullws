@@ -27,6 +27,7 @@ public class BandaResource {
 		bandasMap = new HashMap<Integer, Banda>();
 
 		Banda b1 = new Banda();
+		
 		b1.setId(1);
 		b1.setNome("Led Zeppelin");
 		b1.setAnoDeFormacao(1968);
@@ -42,10 +43,19 @@ public class BandaResource {
 	}
 
 	@GET
-	@Produces("text/xml")
+	@Produces("application/json")
 	public List<Banda> getBandas() {
 		return new ArrayList<Banda>(bandasMap.values());
 	}
+	
+//	@GET
+//	@Produces("application/json")
+//	public Banda getBandas() {
+//		return bandasMap.get(1);
+//	}
+	
+	
+	
 	
 	@Path("{id}")
 	@GET
@@ -58,6 +68,7 @@ public class BandaResource {
 	@Consumes("text/xml")
 	@Produces("text/plain")
 	public String adicionaBanda(Banda banda) {
+		System.out.println(banda);
 		banda.setId(bandasMap.size() + 1);
 		bandasMap.put(banda.getId(), banda);
 		return banda.getNome() + " adicionado.";
