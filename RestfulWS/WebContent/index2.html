@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html ng-app="myAuth">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body ng-controller="ApplicationController">
+
+<div ng-controller="LoginController">
+<form name="loginForm" ng-submit="login(credentials)"
+      novalidate>
+
+  <label for="username">Username:</label>
+  <input type="text" id="username"
+         ng-model="credentials.username">
+
+  <label for="password">Password:</label>
+  <input type="password" id="password"
+         ng-model="credentials.password">
+
+  <button type="submit">Login</button>
+
+</form>
+</div>
+<div>
+	<button ng-click="showLoginInfos()">Test Login</button>
+</div>
+
+
+<script src="js/angular/angular.js"></script>
+<script type="text/javascript" src="js/autentication.js"></script>
+<script src="js/angular/angular-resource.js"></script> 
+<link rel="stylesheet" href="css/foundation.css">
+</body>
+</html>
