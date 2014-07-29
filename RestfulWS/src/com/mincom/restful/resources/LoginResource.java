@@ -1,4 +1,4 @@
-package com.k19.restful.resources;
+package com.mincom.restful.resources;
 
 
 import java.util.ArrayList;
@@ -13,8 +13,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
-import br.com.k19.models.Banda;
-import br.com.k19.models.Login;
+import com.mincom.rest.models.Banda;
+import com.mincom.rest.models.Login;
+
 import java.util.UUID;
 
 @Path("/login")

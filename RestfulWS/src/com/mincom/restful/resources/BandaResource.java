@@ -1,4 +1,4 @@
-package com.k19.restful.resources;
+package com.mincom.restful.resources;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,7 +14,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
-import br.com.k19.models.Banda;
+import com.mincom.rest.models.Banda;
 
 @Path("/bandas")
 public class BandaResource {
@@ -48,15 +48,7 @@ public class BandaResource {
 		return new ArrayList<Banda>(bandasMap.values());
 	}
 	
-//	@GET
-//	@Produces("application/json")
-//	public Banda getBandas() {
-//		return bandasMap.get(1);
-//	}
-	
-	
-	
-	
+
 	@Path("{id}")
 	@GET
 	@Produces("text/xml")
