@@ -27,9 +27,19 @@ return $filter('number')(input * 100, decimals) + '%';
 function miniFlex(){
 			var tarif = {};
 			var returnValue = 0;
-			var peak     = 0.78;
-			var standard = 0.24;
-			var offPeak  = 0.13;
+			var demand = "";
+			var peakHighDemand     = 0.25;
+			var standardHighDemand = 0.08;
+			var offPeakHighDemand   = 0.04;
+			
+			var peakLowDemand      = 0.09;
+			var standardLowDemand  = 0.07;
+			var offPeakLowDemand   = 0.04;
+			
+			var peak;
+			var standard;
+			var offPeak;
+			
 			var localName = "";
 			tarif.getName = function(){
 				return localName;
@@ -39,7 +49,18 @@ function miniFlex(){
 			}
 
 			tarif.calculate = function(uhrzeit, wert,datum ){
-				    returnValue = 0;
+					returnValue = 0;
+				    if ( 3 <= datum.getMonth() && 8 <= datum.getMonth( )){
+				    	demand= "low";
+				    	peak= peakLowDemand;
+				    	standard = standardLowDemand;
+				    	offPeak = offPeakLowDemand;
+				    } else {
+				    	demand = "high";
+				    	peak= peakHighDemand;
+				    	standard = standardHighDemand;
+				    	offPeak = offPeakHighDemand;
+				    }
 				    
 				    returnValue = offPeakFunction(uhrzeit,wert,returnValue,datum);
 					returnValue = peakFunction(uhrzeit,wert,returnValue,datum);
@@ -108,7 +129,7 @@ function miniFlex(){
 function fixTarif(){
 			var tarif = {};
 			var returnValue = 0;
-			var peak     = 0.60;
+			var peak     = 0.25;
 			
 			var localName = "";
 			tarif.getName = function(){
@@ -131,9 +152,15 @@ function fixTarif(){
 function TagUndNacht(){
 		var tarif = {};
 		var returnValue = 0;
-		var peak     = 0.86;
-		var offPeak     = 0.40;
-
+		var peakHighDemand     = 0.25;
+		var offPeakHighDemand   = 0.04;
+		
+		var peakLowDemand      = 0.09;
+		var offPeakLowDemand   = 0.04;
+		
+		var peak;
+		var offPeak;
+		
 		var localName = "";
 			tarif.getName = function(){
 				return localName;
@@ -144,6 +171,18 @@ function TagUndNacht(){
 
 		tarif.calculate = function(uhrzeit, wert,datum ){
 				    returnValue = 0;
+				    
+				    
+				    if ( 3 <= datum.getMonth() && 8 <= datum.getMonth( )){
+				    	demand= "low";
+				    	peak= peakLowDemand;
+				    	offPeak = offPeakLowDemand;
+				    } else {
+				    	demand = "high";
+				    	peak= peakHighDemand;
+				    	offPeak = offPeakHighDemand;
+				    }
+				    
 				    
 				    returnValue = offPeakFunction(uhrzeit,wert,returnValue,datum);
 					returnValue = peakFunction(uhrzeit,wert,returnValue,datum);
@@ -203,9 +242,9 @@ app.controller("tableController", function($scope,$http,loadFile,TarifFactory,pr
 	
 	
 	$scope.profile = profilesData;
-	SPL.get({},function(data){
-		console.log(data.dates);
-	});
+//	SPL.get({service:'SLP'},function(data){
+//		console.log(data);
+//	});
 	
 	
 	$scope.profilonchange = function(){
@@ -218,9 +257,9 @@ app.controller("tableController", function($scope,$http,loadFile,TarifFactory,pr
 		$scope.totalFix = 0;
 		$scope.totalMiniFlex = 0;
 		$scope.totalTagUndNacht = 0;
-		loadFile.openFile("json/"+$scope.myProfil.datei).then(function(value){
-    		var teste = value.data;
-    	  	var summeMiniFlex = 0;
+		SPL.get({service:'SLP', begin:'2013-01-01', end:'2013-12-31',bdlId:'4', gl:$scope.myProfil.id},function(data){
+    		var teste = data.dates;
+    		var summeMiniFlex = 0;
     	  	var summePauschalpreis = 0;
     	  	var summeTagUndNacht = 0;
     	  	var watt = 0;
@@ -281,8 +320,8 @@ app.factory("profilesData",function($resource){
 
 app.factory("SPL",function($resource){
 	//var result = $resource('/RestfulWS/service/SLP/2013-01-01/2013-12-31/4/7');
-    return $resource('/RestfulWS/service/SLP/2013-01-01/2013-12-31/4/7', {}, {
-        query: { method: 'GET', params: {}, isArray: false   }
+    return $resource('/RestfulWS/service/:services/:begin/:end/:bdlId/:gl', {services:'SLP',begin:'', end:'',bdlId:'', gl:''}, {
+        query: { method: 'GET', params: {}, isArray: true   }
     });
 
 	

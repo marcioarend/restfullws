@@ -184,6 +184,43 @@ public class DAO {
 		return kundeBOs;
 	}
 
+	public SLPBO getAllSLP(String datumAnfang,String datumEnd) throws SQLException{
+		SLPBO slpbo = new SLPBO();
+		Statement statement;
+		ResultSet resultSet = null;
+		statement = this.getConnection().createStatement();
+		String newDate = "";
+		String oldDate = "0000";
+		resultSet = statement.executeQuery("Select * from SLP where "
+				+ " Datum between Date('"
+				+ datumAnfang
+				+ "') and Date('"
+				+ datumEnd
+				+ "') "
+				);
+		DatumBO datumBO=null; 
+		int i=0;
+		while (resultSet.next()){
+			newDate = resultSet.getString("datum");
+			
+			if (!newDate.equals(oldDate)){
+					datumBO = new DatumBO(newDate);
+					datumBO.setValues(new WertBO(resultSet.getString("Zeit"),resultSet.getString("Wert")));
+					oldDate=newDate;
+					slpbo.setDatum(datumBO);
+					i++;
+			} else {
+					datumBO.setValues(new WertBO(resultSet.getString("Zeit"),resultSet.getString("Wert")));
+					i++;
+			}
+		}
+		
+		System.out.println(i);
+		return slpbo;
+	}
+	
+	
+	
 	
 	public SLPBO getSLPFromBundsGeschaeft(String datumAnfang,String datumEnd,int idBundesland, int idGeschaeft) throws SQLException{
 		SLPBO slpbo = new SLPBO();

@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -42,28 +43,28 @@ public class BandaResource {
 		bandasMap.put(b2.getId(), b2);
 	}
 
-	@GET
-	@Produces("application/json")
-	public List<Banda> getBandas() {
-		return new ArrayList<Banda>(bandasMap.values());
-	}
+		@GET
+		@Produces("application/json")
+		public List<Banda> getBandas() {
+			return new ArrayList<Banda>(bandasMap.values());
+		}
+		
 	
-
-	@Path("{id}")
-	@GET
-	@Produces("text/xml")
-	public Banda getBanda(@PathParam("id") int id) {
-		return bandasMap.get(id);
-	}
-	
-	@POST
-	@Consumes("text/xml")
-	@Produces("text/plain")
-	public String adicionaBanda(Banda banda) {
-		System.out.println(banda);
-		banda.setId(bandasMap.size() + 1);
-		bandasMap.put(banda.getId(), banda);
-		return banda.getNome() + " adicionado.";
-	}
+		@Path("{id}")
+		@GET
+		@Produces("text/xml")
+		public Banda getBanda(@PathParam("id") int id) {
+			return bandasMap.get(id);
+		}
+		
+		@POST
+		@Consumes("text/xml")
+		@Produces("text/plain")
+		public String adicionaBanda(Banda banda) {
+			System.out.println(banda);
+			banda.setId(bandasMap.size() + 1);
+			bandasMap.put(banda.getId(), banda);
+			return banda.getNome() + " adicionado.";
+		}
 	
 }	
