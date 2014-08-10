@@ -255,7 +255,6 @@ public class DAO {
 			}
 		}
 		
-		System.out.println(i);
 		return slpbo;
 	}
 	

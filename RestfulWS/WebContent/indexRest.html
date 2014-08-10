@@ -4,7 +4,15 @@
 <meta charset="UTF-8">
 <title>Insert title here</title>
 </head>
-<body ng-controller="crtl1">
+<body >
+<div ng-controller="crtlLogin">
+	<label> Name</label><input value="name" ng-model="user.name"> <br>
+	<label> PWD</label><input value="pwd"   ng-model="user.pwd"> <br>
+	<button ng-click="functionLogin()"> Login</button>
+	<button ng-click="functionTestAuth()"> Test Auth</button>
+	
+</div>
+
 
 </body>
 <script src="js/angular/angular.js"></script>

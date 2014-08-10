@@ -22,8 +22,8 @@ public final class DemoAuthenticator {
 
     private DemoAuthenticator() {
         // The usersStorage pretty much represents a user table in the database
-        usersStorage.put( "username1", "passwordForUser1" );
-        usersStorage.put( "username2", "passwordForUser2" );
+        usersStorage.put( "user", "user1" );
+        usersStorage.put( "admin", "admin1" );
         usersStorage.put( "username3", "passwordForUser3" );
 
         /**
@@ -32,8 +32,8 @@ public final class DemoAuthenticator {
         * only username1 and username2 is given the REST service access with
         * their respective service keys.
         */
-        serviceKeysStorage.put( "f80ebc87-ad5c-4b29-9366-5359768df5a1", "username1" );
-        serviceKeysStorage.put( "3b91cab8-926f-49b6-ba00-920bcf934c2a", "username2" );
+        serviceKeysStorage.put( "f80ebc87-ad5c-4b29-9366-5359768df5a1", "user" );
+        serviceKeysStorage.put( "3b91cab8-926f-49b6-ba00-920bcf934c2a", "admin" );
     }
 
     public static DemoAuthenticator getInstance() {

@@ -9,6 +9,7 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.security.auth.login.LoginException;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -33,10 +34,13 @@ public class DemoBusinessRESTResource implements DemoBusinessRESTResourceProxy {
     @Override
     @POST
     @Path( "login" )
+    @Consumes("application/x-www-form-urlencoded")
     @Produces("application/json")
     public Response login( @Context HttpHeaders httpHeaders, @FormParam( "username" ) String username, @FormParam( "password" ) String password ) {
-    	System.out.println("Resource  " + httpHeaders);	
-        DemoAuthenticator demoAuthenticator = DemoAuthenticator.getInstance();
+    	System.out.println("media " + httpHeaders.getAcceptableMediaTypes());
+		System.out.println( "media type " + httpHeaders.getMediaType());
+    	System.out.println(" Login " + username + " " + password) ;
+    	DemoAuthenticator demoAuthenticator = DemoAuthenticator.getInstance();
         List<String> serviceKey = httpHeaders.getRequestHeader( DemoHTTPHeaderNames.SERVICE_KEY );
 
         try {
@@ -59,6 +63,7 @@ public class DemoBusinessRESTResource implements DemoBusinessRESTResourceProxy {
 
     @Override
     public Response demoGetMethod() {
+    	System.out.println("Get");
         JsonObjectBuilder jsonObjBuilder = Json.createObjectBuilder();
         jsonObjBuilder.add( "message", "Executed demoGetMethod" );
         JsonObject jsonObj = jsonObjBuilder.build();
@@ -68,6 +73,7 @@ public class DemoBusinessRESTResource implements DemoBusinessRESTResourceProxy {
 
     @Override
     public Response demoPostMethod() {
+    	System.out.println("Post");
         JsonObjectBuilder jsonObjBuilder = Json.createObjectBuilder();
         jsonObjBuilder.add( "message", "Executed demoPostMethod" );
         JsonObject jsonObj = jsonObjBuilder.build();
@@ -75,10 +81,12 @@ public class DemoBusinessRESTResource implements DemoBusinessRESTResourceProxy {
         return getNoCacheResponseBuilder( Response.Status.ACCEPTED ).entity( jsonObj.toString() ).build();
     }
 
-    @Override
+    @POST
+    @Path( "logout" )
     public Response logout(
         @Context HttpHeaders httpHeaders ) {
-        try {
+    	System.out.println("Logout");
+    	try {
             DemoAuthenticator demoAuthenticator = DemoAuthenticator.getInstance();
             List<String> serviceKey = httpHeaders.getRequestHeader( DemoHTTPHeaderNames.SERVICE_KEY );
             List<String> authToken = httpHeaders.getRequestHeader( DemoHTTPHeaderNames.AUTH_TOKEN );

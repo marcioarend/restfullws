@@ -9,7 +9,7 @@ import com.mincom.rest.auth.DemoRESTRequestFilter;
 public class WhatIfConfig  extends ResourceConfig{
 	
 	public WhatIfConfig(){
-		System.out.println("abrindo o registro");
+		System.out.println("******** Carregando filtros *************");
 		 register(com.mincom.rest.auth.DemoRESTRequestFilter.class);
 		 register(com.mincom.rest.auth.DemoRESTResponseFilter.class);
 	}

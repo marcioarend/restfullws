@@ -66,8 +66,14 @@ public class SLPResource {
 	
 	@GET
 	@Produces("application/json")
-	public List<SLPBO> getSLPs(){
-		return new ArrayList<SLPBO>(maps.values());
+	public SLPBO getSLPs(){
+		try {
+			return dao.getSLPFromBundsGeschaeft("2013-01-01", "2013-01-02", 4, 7);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	@Path("{begin}/{end}/{bl}/{ge}")
