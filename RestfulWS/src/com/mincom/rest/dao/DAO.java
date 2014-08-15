@@ -13,6 +13,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.mincom.impl.PreisImp;
+import com.mincom.impl.SeasonImp;
+import com.mincom.impl.TarifImp;
+import com.mincom.inter.Preis;
+import com.mincom.inter.Season;
+import com.mincom.inter.Tarif;
+import com.mincom.inter.TarifVariabelInter;
 import com.mincom.rest.bo.*;
 
 public class DAO {
@@ -154,7 +161,7 @@ public class DAO {
 				tarifBO.populate(resultSet);
 				tarifBOs.put(resultSet.getInt("id"), tarifBO);
 			}
-			tarifBO.setPreis(preisBO);
+//			tarifBO.setPreis(preisBO);
 
 		}
 		return tarifBOs.values();
@@ -352,8 +359,8 @@ public class DAO {
 		ResultSet resultSet = null;
 		statement = this.getConnection().createStatement();
 		Iterator<TarifVariabelBO> tarifVariables = tarifVariabelBOs.iterator();
-		TarifVariabelBO tarifVariabelBO = tarifVariables.next();
-		TarifVariabelBO tarfiDayNight = tarifVariables.next();
+		TarifVariabelInter tarifVariabelBO = tarifVariables.next();
+		TarifVariabelInter tarfiDayNight = tarifVariables.next();
 		
 
 		double variiertPreisSumme = 0.0;
@@ -364,8 +371,8 @@ public class DAO {
 		resultSet = statement.executeQuery("Select * from Simulation where Kunde_id = "	+ kundeId);
 		while (resultSet.next()) {
 			wert = resultSet.getDouble("Wert");
-			variiertPreisSumme += wert *	tarifVariabelBO.getFakePreis(resultSet.getTime("Zeit"));
-			dayNightSumme += wert * 	tarfiDayNight.getFakePreisDayNight(resultSet.getTime("Zeit"));
+//			variiertPreisSumme += wert *	tarifVariabelBO.getFakePreis(resultSet.getTime("Zeit"));
+//			dayNightSumme += wert * 	tarfiDayNight.getFakePreisDayNight(resultSet.getTime("Zeit"));
 			fixPreisSume += wert * 0.395;
 		}
 		
@@ -374,14 +381,24 @@ public class DAO {
 	}
 	
 	
-	public List<SimulationBO> getAllSimulationFurKunde(int kundeID) throws SQLException{
+	public List<SimulationBO> getAllSimulationFurKunde(int kundeID,String datumAnfang, String datumEnd) throws SQLException{
 		Statement statement;
 		ResultSet resultSet = null;
 		statement = this.getConnection().createStatement();
 		List<SimulationBO> simulationBOs = new ArrayList<SimulationBO>();
 		SimulationBO simBo = new SimulationBO();
 
-		resultSet = statement.executeQuery("Select * from Simulation where Kunde_id = "	+ kundeID);
+		resultSet = statement.executeQuery("Select * from Simulation where Kunde_id = "	+ kundeID 
+				
+				+ " and Datum between Date('"
+				+ datumAnfang
+				+ "') and Date('"
+				+ datumEnd
+				+ "') "
+				);
+				
+				
+				
 		while (resultSet.next()) {
 			simBo = new SimulationBO();
 			simBo.setDate(resultSet.getDate("Datum"));
@@ -393,6 +410,112 @@ public class DAO {
 		return simulationBOs;
 		
 	}
+	
+	
+	public List<Tarif> getAllTarifsFromDB() throws SQLException{
+		Statement statement;
+		ResultSet resultSet = null;
+		statement = this.getConnection().createStatement();
+		List<SimulationBO> simulationBOs = new ArrayList<SimulationBO>();
+		SimulationBO simBo = new SimulationBO();
+		int tIdOld = 0,tIdNeue = 0,pIdOld = 0,pIdNeue = 0;
+		Preis pWochentagHigh = null;
+		Preis pSamstagHigh = null;
+		Preis pSonntagHigh = null;
+		
+		Preis pWochentagLow = null;
+		Preis pSamstagLow = null;
+		Preis pSonntagLow = null;
+		
+		Season sHigh = null;
+		Season sLow = null;
+		Tarif t = null;
+		List<Tarif> tList = new ArrayList<Tarif>();
+		
+		
+		
+		resultSet = statement.executeQuery("select t.id as tId, name, DayNight,DreiPeriod,Jahrzeit, " +
+										   " p.id as pId, Preis,HighDemand,Anfang, End,Wochentag,Sanstag,Sonntag "+
+										   " from Preis as p, Preis_activen as pa, Tarif as t, Tarif_has_Preis as tp "+ 
+										   "	where " + 
+										   " tp.Preis_id=p.id and pa.Preis_id=p.id and t.id = tp.Tarif_id and pa.Tarif_id "+
+										   " order by t.id ASC, p.id ASC" );
+		
+		
+		while (resultSet.next()){
+			tIdNeue = resultSet.getInt("tId");
+			if ( tIdNeue != tIdOld){
+				t= new TarifImp();
+				t.setName(resultSet.getString("name"));
+				sHigh = new SeasonImp();
+				sHigh.setName(Season.HIGH_DEMAND);
+				
+				sLow = new SeasonImp();
+				sLow.setName(Season.LOW_DEMAND);
+				t.setSeason(sLow);
+				t.setSeason(sHigh);
+				tList.add(t);
+				tIdOld = tIdNeue;
+			}
+			
+			pIdNeue = resultSet.getInt("pId");
+			if (pIdNeue == pIdOld){
+				if ( resultSet.getInt("HighDemand") == 1){
+					populatePreis(resultSet,  pWochentagHigh, pSamstagHigh, pSonntagHigh);
+				}else {
+					populatePreis(resultSet,  pWochentagLow, pSamstagLow, pSonntagLow);
+				}
+				
+		
+			} else {
+				pWochentagHigh = new PreisImp();
+				pSamstagHigh = new PreisImp();
+				pSonntagHigh = new PreisImp();
+				pWochentagLow = new PreisImp();
+				pSamstagLow = new PreisImp();
+				pSonntagLow = new PreisImp();
+				
+				pIdOld = pIdNeue;
+				
+				if ( resultSet.getInt("HighDemand") == 1){
+					populatePreis(resultSet,  pWochentagHigh, pSamstagHigh, pSonntagHigh);
+					sHigh.setPreis(pWochentagHigh);
+					sHigh.setPreisSamstag(pSamstagHigh);
+					sHigh.setPreisSonntag(pSonntagHigh);
+				}else {
+					populatePreis(resultSet,  pWochentagLow, pSamstagLow, pSonntagLow);
+					sLow.setPreis(pWochentagLow);
+					sLow.setPreisSamstag(pSamstagLow);
+					sLow.setPreisSonntag(pSonntagLow);
+				}
+				
+				
+			}
+			
+		}
+		
+		
+		return tList;
+	}
+
+	private void populatePreis(ResultSet resultSet, Preis pWochentag,Preis pSanstag,Preis pSonntag)
+			throws SQLException {
+		if ( resultSet.getInt("Wochentag") == 1){
+			pWochentag.setName("Id " + resultSet.getInt("pId"));
+			pWochentag.setPreis(resultSet.getDouble("Preis"));
+			pWochentag.setGueltigkeit(resultSet.getTime("Anfang"), resultSet.getTime("End"));
+		} else if (resultSet.getInt("Sanstag") == 1){
+			pSanstag.setName("Id " + resultSet.getInt("pId"));
+			pSanstag.setPreis(resultSet.getDouble("Preis"));
+			pSanstag.setGueltigkeit(resultSet.getTime("Anfang"), resultSet.getTime("End"));
+		} else {
+			pSonntag.setName("Id " + resultSet.getInt("pId"));
+			pSonntag.setPreis(resultSet.getDouble("Preis"));
+			pSonntag.setGueltigkeit(resultSet.getTime("Anfang"), resultSet.getTime("End"));
+		}
+	}
+	
+	
 	
 	/**
 	 * 

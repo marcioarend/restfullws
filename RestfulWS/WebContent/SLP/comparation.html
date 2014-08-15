@@ -1,0 +1,123 @@
+<form class="panel clearfix" > 
+  <div class="row" >
+    
+    <div class="small-3 columns">
+      <label>Mein Profil
+      <select ng-model="myProfil" ng-options="profil.name for  profil in profile" ng-change="profilonchange()">
+        <option value="">-- Profil --</option>
+      </select>
+      </label>
+    </div>
+
+    
+
+<div class="row">
+    <div class="small-12 columns">
+      <fieldset>
+        <legend>Total</legend>
+          <div class="small-4 columns">
+            <label>Pauschalpreis </label>
+            <div>
+              {{totalFix |  currency:"€ "}}
+            </div>
+          </div>
+          <div class="small-4 columns">
+            <label>Tag und Nacht </label>
+              <div> {{totalTagUndNacht | currency:"€ "}} </div>
+            
+          </div>
+          <div class="small-4 columns">
+            <label>Miniflex </label>
+            <div> {{totalMiniFlex | currency:"€ "}} </div>
+            
+          </div>
+          
+
+        
+      </fieldset>
+    </div>
+  </div>
+  
+  </div>
+
+<div class="row">
+    <div class="small-12 columns">
+      <table align="center" > 
+        <thead> 
+          <tr> 
+            <th width="200">Der günstige Tarif</th> 
+            <th width="200">% Pauschalpreis</th> 
+            <th width="200">% Miniflex</th> 
+            <th width="200">% Tag und Nacht</th> 
+            <th width="50">von</th> 
+            <th width="50">bis</th> 
+            <th width="50">Verbrauch Wochenende </th> 
+            <th width="50">von</th> 
+            <th width="50">bis</th>
+          </tr> 
+        </thead> 
+        <tbody> 
+
+          <tr > 
+              <td>{{komparation.tarifName}}</td>
+              <td>{{komparation.pauschal | percentage:2 }}</td> 
+              <td>{{komparation.miniflex | percentage:2 }}</td>    
+              <td>{{komparation.tagundnacht | percentage:2 }}</td>    
+              <td>{{komparation.weekbegin}}</td>    
+              <td>{{komparation.weekend}}</td>    
+              <td>{{komparation.useweekend}}</td>    
+              <td>{{komparation.weekendbegin}}</td>    
+              <td>{{komparation.weekendend}}</td>    
+            
+            </tr>
+          </tbody> 
+        </table>
+    </div>    
+  </div>
+
+
+
+      
+
+  
+  
+  
+  <div class="row" >
+    <div class="small-6 columns" >
+      
+        <nvd3-multi-bar-chart
+                title="Wochentag"  
+                data="wochenGraphData"
+                id="wochentagID"
+                showLegend="true"
+                objectequality="true"
+                height="250"
+                width="450"
+                showXAxis="true"
+                showYAxis="true"
+                rotateLabels="90">
+            <svg></svg>
+        </nvd3-multi-bar-chart>
+      
+    </div>
+    <div class="small-6 columns" >
+    <nvd3-multi-bar-chart
+            title="Wochenende"  
+            data="wochenendeGraphData"
+            id="wochenenedeID"
+            showLegend="true"
+            objectequality="true"
+            height="250"
+            width="450"
+            showXAxis="true"
+            showYAxis="true"
+            rotateLabels="90">
+        <svg></svg>
+    </nvd3-multi-bar-chart>
+  </div>
+</div>
+<br>
+<br>
+ 
+  
+</form>

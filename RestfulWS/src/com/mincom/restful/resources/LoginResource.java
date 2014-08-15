@@ -34,7 +34,7 @@ import com.mincom.rest.models.Login;
 
 import java.util.UUID;
 
-@Path("/restLogin")
+@Path("restLogin")
 public class LoginResource {
 	
 	@POST

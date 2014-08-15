@@ -1,6 +1,8 @@
-package com.mincom.rest.bo;
+package com.mincom.rest.dao;
 
 import java.util.List;
+
+import com.mincom.rest.bo.KundeBO;
 
 public class SimulationDAO {
 	private  KundeBO kunde;

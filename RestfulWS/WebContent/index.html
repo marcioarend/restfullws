@@ -3,24 +3,74 @@
 <head>
 <meta charset="UTF-8">
 <title>Insert title here</title>
-</head>
-<body>
-<div ng-controller="myController">
-	
-	
-	<button ng-click="buscarBandas()"> Buscar bandas </button>
-	<div ng-repeat = "band in bands">
-		Id {{band.id}} Nome {{band.nome}} Ano {{band.ano}} <br> 
-	
-	</div> 
-	
-</div>
-
-
+<link rel="stylesheet" type="text/css" href="css/foundation.css" />
 
 <script src="js/angular/angular.js"></script>
-<script src="js/angular/angular-resource.js"></script> 
-<script src="js/controller.js"></script>
-</body>
+<script src="js/angular/angular-resource.js"></script>
+<script src="js/angular/angular-route.js"></script>
+<script src="js/extras/d3.js"></script>
+<script src="js/extras/nv.d3.js"></script>
+<script src="js/extras/angularjs-nvd3-directives.min.js"></script>
+<script src="js/controller_rest.js"></script>
 
+
+
+<link rel="stylesheet" href="css/nv.d3.css" />
+
+
+</head>
+<body>
+
+	<nav class="top-bar foundation-bar" data-topbar>
+		<ul class="title-area">
+			<li class="name">
+			<span data-tooltip class="has-tip"	title="Try resizing your browser to see how the grid stacks">
+				<h1	class="show-for-small-only">
+						<a href="#">Small screen</a>
+				</h1>
+			</span>
+			<span data-tooltip class="has-tip"	title="Try resizing your browser to see how the grid stacks">
+				 <h1 class="show-for-medium-only">
+			 		<a href="#">Medium Screen</a>
+				</h1>
+			</span>
+			<span data-tooltip class="has-tip"	title="Try resizing your browser to see how the grid stacks">
+				<h1	class="show-for-large-only">
+						<a href="#">Large screen</a>
+				</h1>
+			</span>
+		</li>
+		</ul>
+		<section class="top-bar-section">
+			<!-- Right Nav Section -->
+			<ul class="right">
+				<li class="active"><a href="#/login">Login</a></li>
+				<li>               <a href=" " target="#"> </a></li>
+				<li><a href="#"	target="_blank">Navigation Example</a></li>
+				<li><a href="#"	target="_blank">Forms</a></li>
+				<li><a href="http://codepen.io/ZURBFoundation/full/fcFnq"target="_blank">Interchange</a></li>
+			</ul>
+		</section>
+	</nav>
+
+	<div class="row">
+		<div class="small-12 columns">
+			<br>
+			<div data-alert class="alert-box radius secondary">
+				<a href="http://codepen.io/ZURBFoundation/full/olduj/"
+					target="_blank">Try viewing this in a separate tab and resizing
+					your browser to see how the grid stacks →</a> <a href="#" class="close">&times;</a>
+			</div>
+		</div>
+	</div>
+
+
+
+	<div>
+		<ng-view></ng-view>
+	</div>
+
+
+
+</body>
 </html>

@@ -5,7 +5,9 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.util.HashMap;
 
-public class TarifVariabelBO {
+import com.mincom.inter.TarifVariabelInter;
+
+public class TarifVariabelBO implements TarifVariabelInter {
 
 	private int id;
 	private String name;
@@ -22,34 +24,50 @@ public class TarifVariabelBO {
 	private Time time20 = new Time(20, 00, 00);
 	private Time time22 = new Time(22, 00, 00);
 
+	/* (non-Javadoc)
+	 * @see com.mincom.rest.bo.TarifVariabelInter#getId()
+	 */
+	@Override
 	public int getId() {
 		return id;
 	}
 
 
 
+	/* (non-Javadoc)
+	 * @see com.mincom.rest.bo.TarifVariabelInter#getKuendigungsfrist()
+	 */
+	@Override
 	public String getKuendigungsfrist() {
 		return kuendigungsfrist;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.mincom.rest.bo.TarifVariabelInter#setKuendigungsfrist(java.lang.String)
+	 */
+	@Override
 	public void setKuendigungsfrist(String kuendigungsfrist) {
 		this.kuendigungsfrist = kuendigungsfrist;
 	}
 
 	private String kuendigungsfrist;
 
-	public HashMap<Time, PreisBO> getPreis() {
-		return preis;
-	}
-
-	public void setPreis(PreisBO preis) {
+		/* (non-Javadoc)
+	 * @see com.mincom.rest.bo.TarifVariabelInter#setPreis(com.mincom.rest.bo.PreisBO)
+	 */
+	@Override
+	public void setPreis(PreisBO preis,Time time) {
 		if ( this.preis == null) {
 			this.preis = new HashMap<Time, PreisBO>();
 		}
-		this.preis.put(preis.getAnfangszeit(), preis);
+		this.preis.put(time, preis);
 	}
 	
-	public double getFakePreis(Time time){
+	/* (non-Javadoc)
+	 * @see com.mincom.rest.bo.TarifVariabelInter#getFakePreis(java.sql.Time)
+	 */
+	@Override
+	public double getPreis(Time time){
 		
 		if ((time.compareTo(time07) >= 0 && time.compareTo(time08) < 0) || 
 			(time.compareTo(time10) >= 0 && time.compareTo(time18) < 0) || 
@@ -72,22 +90,11 @@ public class TarifVariabelBO {
 	}
 
 	
-	public double getFakePreisDayNight(Time time){
-		
-		if ((time.compareTo(time06) >= 0 && time.compareTo(time22) < 0)){
-			PreisBO p = this.preis.get(time06);
-			return p.getPreis();
-		} else {	
-			PreisBO p = this.preis.get(time22);
-			return p.getPreis();	
-		}
-			
-			
-		
-		
-	}
 	
-	
+	/* (non-Javadoc)
+	 * @see com.mincom.rest.bo.TarifVariabelInter#populate(java.sql.ResultSet)
+	 */
+	@Override
 	public void populate(ResultSet result){
 		try {
 			this.setId(result.getInt("id"));
@@ -102,6 +109,9 @@ public class TarifVariabelBO {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see com.mincom.rest.bo.TarifVariabelInter#toString()
+	 */
 	@Override
 	public String toString() {
 		StringBuffer values = new StringBuffer();
@@ -112,64 +122,94 @@ public class TarifVariabelBO {
 
 
 
+	/* (non-Javadoc)
+	 * @see com.mincom.rest.bo.TarifVariabelInter#getName()
+	 */
+	@Override
 	public String getName() {
 		return name;
 	}
 
 
 
+	/* (non-Javadoc)
+	 * @see com.mincom.rest.bo.TarifVariabelInter#setName(java.lang.String)
+	 */
+	@Override
 	public void setName(String name) {
 		this.name = name;
 	}
 
 
 
+	/* (non-Javadoc)
+	 * @see com.mincom.rest.bo.TarifVariabelInter#isDayNight()
+	 */
+	@Override
 	public boolean isDayNight() {
 		return dayNight;
 	}
 
 
 
+	/* (non-Javadoc)
+	 * @see com.mincom.rest.bo.TarifVariabelInter#setDayNight(boolean)
+	 */
+	@Override
 	public void setDayNight(boolean dayNight) {
 		this.dayNight = dayNight;
 	}
 
 
 
+	/* (non-Javadoc)
+	 * @see com.mincom.rest.bo.TarifVariabelInter#isDreiPeriod()
+	 */
+	@Override
 	public boolean isDreiPeriod() {
 		return dreiPeriod;
 	}
 
 
 
+	/* (non-Javadoc)
+	 * @see com.mincom.rest.bo.TarifVariabelInter#setDreiPeriod(boolean)
+	 */
+	@Override
 	public void setDreiPeriod(boolean dreiPeriod) {
 		this.dreiPeriod = dreiPeriod;
 	}
 
 
 
+	/* (non-Javadoc)
+	 * @see com.mincom.rest.bo.TarifVariabelInter#isJahrzeit()
+	 */
+	@Override
 	public boolean isJahrzeit() {
 		return jahrzeit;
 	}
 
 
 
+	/* (non-Javadoc)
+	 * @see com.mincom.rest.bo.TarifVariabelInter#setJahrzeit(boolean)
+	 */
+	@Override
 	public void setJahrzeit(boolean jahrzeit) {
 		this.jahrzeit = jahrzeit;
 	}
 
 
 
+	/* (non-Javadoc)
+	 * @see com.mincom.rest.bo.TarifVariabelInter#setId(int)
+	 */
+	@Override
 	public void setId(int id) {
 		this.id = id;
 	}
 
-
-
-	public void setPreis(HashMap<Time, PreisBO> preis) {
-		this.preis = preis;
-	}
-	
 	
 
 }

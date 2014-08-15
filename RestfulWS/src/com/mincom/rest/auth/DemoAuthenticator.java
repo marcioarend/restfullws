@@ -22,8 +22,8 @@ public final class DemoAuthenticator {
 
     private DemoAuthenticator() {
         // The usersStorage pretty much represents a user table in the database
-        usersStorage.put( "user", "user1" );
-        usersStorage.put( "admin", "admin1" );
+        usersStorage.put( "user", "user" );
+        usersStorage.put( "admin", "admin" );
         usersStorage.put( "username3", "passwordForUser3" );
 
         /**

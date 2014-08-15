@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<div ng-controller="myController">
+	
+	
+	<button ng-click="buscarBandas()"> Buscar bandas </button>
+	<div ng-repeat = "band in bands">
+		Id {{band.id}} Nome {{band.nome}} Ano {{band.ano}} <br> 
+	
+	</div> 
+	
+</div>
+
+
+
+<script src="js/angular/angular.js"></script>
+<script src="js/angular/angular-resource.js"></script> 
+<script src="js/controller.js"></script>
+</body>
+
+</html>
