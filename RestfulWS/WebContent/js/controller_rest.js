@@ -11,15 +11,19 @@ myApp.factory('headersFactory',function(){
 
 myApp.config([ '$routeProvider', function($routeProvider) {
 	$routeProvider.when('/', {
-		templateUrl : '/RestfulWS/Login/login_part.html',
+		templateUrl : '/RestfulWS/Partials/Login/login_part.html',
 		controller : 'crtlLogin'
 	}).when('/comparation',{
-		templateUrl : '/RestfulWS/SLP/comparation.html',
+		templateUrl : '/RestfulWS/Partials/SLP/comparation.html',
 		controller : 'ComparationCtrl'
 	}).when('/login',{
-		templateUrl : '/RestfulWS/Login/login_part.html',
+		templateUrl : '/RestfulWS/Partials/Login/login_part.html',
 		controller : 'crtlLogin'
-	}).otherwise({
+	}).when('/bericht',{
+		templateUrl : '/RestfulWS/Partials/bericht/bericht.html',
+		controller : 'crtlBericht'
+	})	
+	.otherwise({
 		redirectTo : '/'
 	});
 }]);
@@ -40,6 +44,8 @@ myApp.factory('RESTConnection', function($resource,headersFactory){
 	var defaultUrlLogin = defaultUrl + "restLogin/"; 
 	var defaultUrlSLP = defaultUrl + "SLP/";
 	var defaultUrlGeschaeft = defaultUrl + "geschaeft/"
+	var defaultUrlBericht = defaultUrl + "bericht/"
+	var defaultUrlTarif = defaultUrl + "tarif/"
 	
 	function transformResponse(headersGetters){
 		console.log("transform");
@@ -60,6 +66,18 @@ myApp.factory('RESTConnection', function($resource,headersFactory){
 				headers: headersFactory,
 				isArray:false // aqui ele espera um elemento como retorno
 				},
+		'getGesamtumsatz':{
+				method:'GET',
+				hedaders:headersFactory,
+				url:defaultUrlBericht + "gesamtumsatz",
+				isArray:false
+				},
+		'getTarif':{
+				method:'GET',
+				hedaders:headersFactory,
+				url:defaultUrlTarif + "allTarife",
+				isArray:false
+				},		
 		'getSLP':{
 				method:'GET', // se nao tiver nenhuma paramentro no GET, ele vai pegar a lista dos elementos.
 				url:defaultUrlSLP + "allSLP",
@@ -125,10 +143,10 @@ myApp.factory('RESTConnection', function($resource,headersFactory){
 
 myApp.factory("errors", function(){
     return	function(message){
-    		temp = angular.fromJson(message);
-            console.log(temp.status);
-            console.log(temp.statusText);
-            alert( "Error " + temp.status + " Message " + temp.statusText);
+    		datum = angular.fromJson(message);
+            console.log(datum.status);
+            console.log(datum.statusText);
+            alert( "Error " + datum.status + " Message " + datum.statusText);
             
      };
 });
@@ -140,7 +158,21 @@ myApp.factory("success", function(){
 });
 
 
-myApp.controller('crtlLogin', ['$scope','$location','headersFactory','RESTConnection','success','errors', function($scope,$location,headersFactory,RESTConnection,success,errors){
+myApp.controller('crtlBericht',['$scope','RESTConnection',function($scope,RESTConnection){
+	
+	RESTConnection.getGesamtumsatz(function(data){
+		$scope.berichts=data.values;
+	});
+	
+}])
+
+
+myApp.controller('crtlLogin', ['$scope','$location','headersFactory','RESTConnection','success','errors', 
+                               function($scope,$location,headersFactory,RESTConnection,success,errors){
+	
+	
+		
+	loadTarifFromRest(RESTConnection);
 	
 	$scope.functionLogin = function(){
 		var login = RESTConnection;
@@ -160,7 +192,7 @@ myApp.controller('crtlLogin', ['$scope','$location','headersFactory','RESTConnec
 	$scope.functionTestAuth = function(){
 		teste = RESTConnection;
 		
-		var temp = teste.getSLP().$promise.then(
+		teste.getSLP().$promise.then(
 		        function( value ){
 		        	var temp = angular.fromJson(value);
 		        	console.log(temp.dates);
@@ -178,6 +210,238 @@ myApp.controller('crtlLogin', ['$scope','$location','headersFactory','RESTConnec
 	
 }])
 
+//******************** Tarif mit REST *****************************
+var Season = function(){
+	var wochentag = [] ;
+	var samstag = [] ;
+	var sonntag =[] ;
+	// 0 LowDemand 1 highdemand;
+	var type = 0;
+
+	this.getType = function(){
+		return type;
+	}
+
+	// 0 LowDemand 1 highdemand;
+	this.setType = function(value){
+		type = value;
+	}
+
+	this.setWochentag = function(preis){
+		wochentag.push(preis);
+	}
+	this.setWochentagJson = function(listPreis){
+		for ( i=0; i < listPreis.length; i++){
+			var preis = new Preis();
+			preis.setPreis(listPreis[i].preis);
+			preis.setGueltigkeitJson(listPreis[i].uhr);
+			wochentag.push(preis);
+			
+		}
+	}
+	
+	this.getWochentag = function(){
+		return wochentag;
+	}
+
+	this.setSamstag =function(preis){
+		samstag.push(preis);
+	}
+
+	this.setSamstagJson = function(listPreis){
+		for ( i=0; i < listPreis.length; i++){
+			var preis = new Preis();
+			preis.setPreis(listPreis[i].preis);
+			preis.setGueltigkeitJson(listPreis[i].uhr);
+			samstag.push(preis);
+			
+		}
+		
+	}
+	
+	this.setSonntag = function(preis){
+		sonntag.push(preis);
+	}
+	
+	this.setSonntagJson = function(listPreis){
+		for ( i=0; i < listPreis.length; i++){
+			var preis = new Preis();
+			preis.setPreis(listPreis[i].preis);
+			preis.setGueltigkeitJson(listPreis[i].uhr);
+			sonntag.push(preis);
+			
+		}
+		
+	}
+	
+
+
+	this.getPreis = function(day,uhr){
+		if ( day.getDay() !=0 && day.getDay() != 6 ){
+			var i=0;
+			for (i=0; i < wochentag.length; i++){
+				if (wochentag[i].isGueltig(uhr)){
+					return wochentag[i];
+				}	
+			}
+			return null;
+		}else if ( day.getDay() == 0 ){
+			var i=0;
+			for (i=0; i < sonntag.length; i++){
+				if (sonntag[i].isGueltig(uhr)){
+					return sonntag[i];
+				}
+			}
+			return null;
+		} else  {
+			var i=0;
+			for (i=0; i < samstag.length; i++){
+				if ( samstag[i].isGueltig(uhr)){
+					return samstag[i];	
+				}
+			}
+			return null;
+		}
+
+	}
+
+};
+
+
+var Preis = function(){
+	var preis = 0;
+	var uhrAnfang = [];
+	var uhrEnde  = [];
+	var name = "";
+
+	this.setName = function(n){
+		name  = n;
+	}
+
+	this.getName = function(){
+		return name;
+	}
+
+	this.setPreis = function(p){
+		preis = p;
+	}
+
+	this.getPreis = function(){
+		return preis;
+	}	
+
+	this.getUhr = function(){
+		return [uhrAnfang,uhrEnde];
+	}
+	
+	this.setGueltigkeitJson = function(listUhr){
+		// First element will allways the begin 
+		uhrAnfang = listUhr[0];
+		uhrEnde = listUhr[1];
+		
+	}
+	
+	this.setGueltigkeit = function(anfang, ende){
+		uhrAnfang.push(anfang);
+		uhrEnde.push(ende);
+	}
+	this.isGueltig = function(uhr){
+		var i = 0;
+		for ( i=0; i < uhrAnfang.length; i++){
+			if (uhrAnfang[i] <= uhr && uhr < uhrEnde[i] ){
+				return true;
+			}
+		}
+		return false;
+
+	}
+
+
+
+};
+
+
+
+
+var Tarif = function(){
+	var Season = [];
+	var lowDemandSeasonBegin = 0;
+	var lowDemandSeasonEnd = 0;
+	var name = "";
+	
+	this.setName = function(n){
+		name = n;
+	}
+	
+	this.getName = function(){
+		return name;
+	}
+	
+	this.setBeginEndSeason = function(begin, end){
+		lowDemandSeasonBegin = begin;
+		lowDemandSeasonEnd = end;
+	}
+	
+	this.getPreis = function(Monate, Uhr){
+		// 0 LowDemand 1 highdemand;
+		var type = 1;
+		if ( lowDemandSeasonBegin <= Monate.getMonth() +1  &&  Monate.getMonth() +1 < lowDemandSeasonEnd){
+			type = 0;
+		}
+		for (i=0; i < Season.length; i++){
+			if ( Season[i].getType() == type ){
+				return Season[i].getPreis(Monate,Uhr);
+			}
+		}		    	
+	}
+
+	this.calculate = function(Monate, Uhr, Wert){
+		var preis = this.getPreis(Monate, Uhr);
+		return preis.getPreis() * Wert;
+	}
+	
+	this.setSeason = function(s){
+		Season.push(s);
+	}
+
+};
+
+
+
+
+
+myApp.factory("loadTarifFromRest", function(RESTConnection) {
+	
+	var tarifRest = RESTConnection;
+	var highSeason = new Season();
+	var lowSeason = new Season();
+	var tarif = new Tarif();
+	tarifRest.getTarif().$promise.then(
+			function(value){
+				var tarifObj = angular.fromJson(value);
+				var highDemandTemp = tarifObj.HighDemand;
+				var lowDemandTemp  = tarifObj.LowDemand;
+				highSeason.setWochentagJson(highDemandTemp.wochentag);
+				highSeason.setSamstagJson(highDemandTemp.samstag)
+				highSeason.setSonntagJson(highDemandTemp.sonntag);
+				highSeason.setType(highDemandTemp.type);
+				
+				lowSeason.setWochentagJson(lowDemandTemp.wochentag);
+				lowSeason.setSamstagJson(lowDemandTemp.samstag);
+				lowSeason.setSonntagJson(lowDemandTemp.sonntag);
+				lowSeason.setType(lowDemandTemp.type);
+				
+				tarif.setSeason(highSeason);
+				tarif.setSeason(lowSeason);
+				tarif.setBeginEndSeason(tarifObj.monateAnfang, tarifObj.monateEnde);
+				tarif.setName(tarifObj.name);
+	
+			}
+	
+	)
+	return tarif;
+	
+})
 
 //************************ comparation ****************************
 
@@ -186,6 +450,8 @@ myApp.filter('percentage', ['$filter', function ($filter) {
 		return $filter('number')(input * 100, decimals) + '%';
 	};
 }]);
+
+
 
 
 function miniFlex(){
@@ -387,7 +653,6 @@ myApp.factory("TarifFactory",function(){
 		var tarif ={};
 		if (id == 1 ){
 			tarif = miniFlex();
-
 		} else if ( id == 2){
 			tarif = fixTarif();
 		} else if ( id == 3){
@@ -405,7 +670,7 @@ myApp.factory("TarifFactory",function(){
 
 
 
-myApp.controller("ComparationCtrl", function($scope,$http,RESTConnection,TarifFactory,profilesData,SPL){
+myApp.controller("ComparationCtrl", function($scope,$http,RESTConnection,TarifFactory,profilesData,SPL,loadTarifFromRest){
 	
 	var connection = RESTConnection;
 	
@@ -418,12 +683,13 @@ myApp.controller("ComparationCtrl", function($scope,$http,RESTConnection,TarifFa
 	
 	
 	$scope.profilonchange = function(){
-		var MiniFlex = TarifFactory.getTarif(1);
-		MiniFlex.setName("MiniFlex");
-		var fixTarifin = TarifFactory.getTarif(2);
-		fixTarifin.setName("Fix Tarif");
-		var tagUndNachtTarif = TarifFactory.getTarif(3);
-		tagUndNachtTarif.setName("Tag und Nacht");
+		var MiniFlex =loadTarifFromRest;
+//		console.log(MiniFlex);
+//		MiniFlex.setName("MiniFlex");
+//		var fixTarifin = TarifFactory.getTarif(2);
+//		fixTarifin.setName("Fix Tarif");
+//		var tagUndNachtTarif = TarifFactory.getTarif(3);
+//		tagUndNachtTarif.setName("Tag und Nacht");
 		$scope.totalFix = 0;
 		$scope.totalMiniFlex = 0;
 		$scope.totalTagUndNacht = 0;
@@ -437,13 +703,11 @@ myApp.controller("ComparationCtrl", function($scope,$http,RESTConnection,TarifFa
     	  	var watt = 0;
 	    	var werten;
 	    	for (var i = 0; i < teste.length  ; i++) {
-				temp = new Date(teste[i].d);
+				datum = new Date(teste[i].d);
 				werten = teste[i].v;
 					for (var j=0; j < werten.length   ; j++) {
-//							 console.log(" Zeit " + werten[j].z  + " Wert "+ werten[j].w + " date " + temp)
-							 summeMiniFlex +=  MiniFlex.calculate(werten[j].z,werten[j].w,temp);
-							 summePauschalpreis += fixTarifin.calculate(werten[j].z,werten[j].w,temp);
-							 summeTagUndNacht +=  tagUndNachtTarif.calculate(werten[j].z,werten[j].w,temp);
+//							 console.log(" Zeit " + werten[j].z  + " Wert "+ werten[j].w + " date " + datum)
+							 summeMiniFlex +=  MiniFlex.calculate(datum,werten[j].z,werten[j].w);
 							 watt += werten[j].w * 1;
 					};
 

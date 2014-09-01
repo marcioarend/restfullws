@@ -1,28 +1,17 @@
 package com.mincom.restful.resources;
 
-import javax.ws.rs.Path;
-
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import org.glassfish.jersey.servlet.ServletContainer;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 
-import com.mincom.rest.bo.DatumBO;
-import com.mincom.rest.bo.GeschaeftBO;
 import com.mincom.rest.bo.SLPBO;
-import com.mincom.rest.bo.WertBO;
 import com.mincom.rest.dao.DAO;
-import com.mincom.rest.models.Banda;
 
 @Path("SLP")
 public class SLPResource {

@@ -1,0 +1,23 @@
+<div class="row">
+    <div class="small-12 columns">
+      <table align="center" > 
+        <thead> 
+          <tr>
+            <th width="200"> ID</th>  
+            <th width="200"> Tarif</th> 
+            <th width="200"> KW</th> 
+            <th width="200"> Total</th> 
+          </tr> 
+        </thead> 
+        <tbody> 
+
+          <tr ng-repeat="bericht in berichts">
+          	 <td>{{bericht.id}}</td> 
+              <td>{{bericht.name}}</td>
+              <td>{{bericht.kw | number:2}}</td>    
+              <td>{{bericht.gesamt | number:2}}</td>    
+           </tr>
+          </tbody> 
+        </table>
+    </div>    
+  </div>	

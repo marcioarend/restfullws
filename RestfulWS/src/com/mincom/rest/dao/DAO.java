@@ -13,6 +13,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
 import com.mincom.impl.PreisImp;
 import com.mincom.impl.SeasonImp;
 import com.mincom.impl.TarifImp;
@@ -227,7 +236,15 @@ public class DAO {
 	}
 	
 	
-	
+	/**
+	 * 
+	 * @param datumAnfang
+	 * @param datumEnd
+	 * @param idBundesland
+	 * @param idGeschaeft
+	 * @return
+	 * @throws SQLException
+	 */
 	
 	public SLPBO getSLPFromBundsGeschaeft(String datumAnfang,String datumEnd,int idBundesland, int idGeschaeft) throws SQLException{
 		SLPBO slpbo = new SLPBO();
@@ -265,6 +282,90 @@ public class DAO {
 		return slpbo;
 	}
 	
+	
+	/**
+	 * 
+	 * @return
+	 * @throws SQLException
+	 */
+	public JsonArrayBuilder getGesamtumsatz() throws SQLException{
+		JsonArrayBuilder list = Json.createArrayBuilder();
+		JsonObjectBuilder wert = Json.createObjectBuilder();
+		Statement statement;
+		ResultSet rs = null;
+		statement = this.getConnection().createStatement();
+
+		rs = statement.executeQuery("SELECT b.Tarif_id as id,sum(gesamt) as gesamt, sum(kw) as kw, t.Name as Name "+ 
+									" FROM betrag as b, Tarif as t where b.Tarif_id = t.id group by b.Tarif_id");
+		while (rs.next()) {
+			wert = Json.createObjectBuilder();
+			
+			wert.add("id", rs.getInt("id"));
+			wert.add("kw", rs.getDouble("kw"));
+			wert.add("gesamt", rs.getDouble("gesamt"));
+			wert.add("name", rs.getString("Name"));
+			
+			list.add(wert);
+
+		}
+
+		return list;
+		
+	}
+	public JsonArrayBuilder geteinSparrung() throws SQLException{
+		JsonArrayBuilder list = Json.createArrayBuilder();
+		JsonArrayBuilder listWerten = Json.createArrayBuilder();
+		JsonObjectBuilder kunde = Json.createObjectBuilder();
+		JsonObjectBuilder wert = Json.createObjectBuilder();
+		Statement statement;
+		ResultSet rs = null;
+		statement = this.getConnection().createStatement();
+		int idOld = 0;
+		int idNew = 0;
+		
+		rs = statement.executeQuery("select * FROM whatif.betrag order by Kunde_id, Tarif_id");
+		
+		while (rs.next()) {
+			idNew = rs.getInt("Kunde_id");
+			if (idNew != idOld ){
+				if ( idOld == 0){
+					kunde = Json.createObjectBuilder();
+					kunde.add("id",idNew);
+				} else {
+					kunde.add("Tarif",listWerten);
+					list.add(kunde);
+					kunde = Json.createObjectBuilder();
+					kunde.add("id",idNew);
+					
+				}
+				listWerten = Json.createArrayBuilder();
+				
+				
+				
+				idOld = idNew;
+				
+			}
+			wert = Json.createObjectBuilder();
+			wert.add("id",rs.getInt("Tarif_id"));
+			wert.add("kw",rs.getDouble("kw"));
+			wert.add("gesamt",rs.getDouble("gesamt"));
+			listWerten.add(wert);
+			
+		}
+		kunde.add("Tarif",listWerten);
+		list.add(kunde);
+		
+		return list;
+	}
+	
+	
+	
+	
+	/**
+	 * 
+	 * @return
+	 * @throws SQLException
+	 */
 	public List<GeschaeftBO> getAllGeschaeft()throws SQLException {
 		List<GeschaeftBO> geschaefts = new ArrayList<GeschaeftBO>();
 		Statement statement;
@@ -282,6 +383,15 @@ public class DAO {
 		return geschaefts;
 	}
 	
+	/**
+	 * 
+	 * @param idBundesland
+	 * @param idGeschaft
+	 * @param datumAnfang
+	 * @param datumEnd
+	 * @return
+	 * @throws SQLException
+	 */
 	
 	public List<Double> SPL(int idBundesland, int idGeschaft, String datumAnfang, String datumEnd)
 			throws SQLException {
@@ -305,6 +415,14 @@ public class DAO {
 		return list;
 	}
 
+	/**
+	 * 
+	 * @param tarifBOs
+	 * @param kundId
+	 * @return
+	 * @throws SQLException
+	 */
+	
 	public String applyTarifToUser(Collection<TarifBO> tarifBOs, int kundId)
 			throws SQLException {
 		Statement statement;
@@ -353,6 +471,13 @@ public class DAO {
 
 	}
 
+	/**
+	 * 
+	 * @param tarifVariabelBOs
+	 * @param kundeId
+	 * @return
+	 * @throws SQLException
+	 */
 	
 	public String applyVaribelTarif(Collection<TarifVariabelBO> tarifVariabelBOs, int kundeId) throws SQLException{
 		Statement statement;
@@ -380,7 +505,14 @@ public class DAO {
 		return ";" + fixPreisSume + ";" + variiertPreisSumme + ";" + dayNightSumme;
 	}
 	
-	
+	/**
+	 * 
+	 * @param kundeID
+	 * @param datumAnfang
+	 * @param datumEnd
+	 * @return
+	 * @throws SQLException
+	 */
 	public List<SimulationBO> getAllSimulationFurKunde(int kundeID,String datumAnfang, String datumEnd) throws SQLException{
 		Statement statement;
 		ResultSet resultSet = null;
@@ -411,13 +543,64 @@ public class DAO {
 		
 	}
 	
+	/**
+	 * 
+	 * @param kundeId
+	 * @param tarifId
+	 * @param gesamt
+	 * @param kw
+	 * @throws SQLException
+	 */
+	public void createBetragKunde(int kundeId,int tarifId, double gesamt, double kw) throws SQLException{
+		
+		String value = "INSERT INTO betrag  (Kunde_id,Tarif_id,kw,gesamt) VALUES "
+				+ "( ?, ?, ?, ?)";
+		PreparedStatement preparedStatement = this.getConnection().prepareStatement(value);
 	
-	public List<Tarif> getAllTarifsFromDB() throws SQLException{
+		preparedStatement.setInt(1, kundeId);
+		preparedStatement.setInt(2, tarifId);
+		preparedStatement.setDouble(3, kw);
+		preparedStatement.setDouble(4, gesamt);
+		preparedStatement.executeUpdate();
+
+		
+		
+	}
+	
+	public Collection<Integer[]> getAllKundeTarif() throws SQLException{
+		Statement statement;
+		ResultSet rs = null;
+		statement = this.getConnection().createStatement();
+		Collection<Integer[]> elements = new ArrayList<Integer[]>();
+		
+		
+		rs = statement.executeQuery("select * from Kunde_has_Tarif group by Kunde_id" );
+		
+		Integer[] values = new Integer[2];
+		while (rs.next()){
+				values = new Integer[2];
+				values[0]=rs.getInt("Kunde_id");
+				values[1]=rs.getInt("Tarif_id");
+				elements.add( values);
+		}
+		
+		
+		
+		
+		
+		
+		return elements;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 * @throws SQLException
+	 */
+	public List<Tarif> getAllTarifsFromDB(int id) throws SQLException{
 		Statement statement;
 		ResultSet resultSet = null;
 		statement = this.getConnection().createStatement();
-		List<SimulationBO> simulationBOs = new ArrayList<SimulationBO>();
-		SimulationBO simBo = new SimulationBO();
 		int tIdOld = 0,tIdNeue = 0,pIdOld = 0,pIdNeue = 0;
 		Preis pWochentagHigh = null;
 		Preis pSamstagHigh = null;
@@ -434,12 +617,22 @@ public class DAO {
 		
 		
 		
-		resultSet = statement.executeQuery("select t.id as tId, name, DayNight,DreiPeriod,Jahrzeit, " +
-										   " p.id as pId, Preis,HighDemand,Anfang, End,Wochentag,Sanstag,Sonntag "+
-										   " from Preis as p, Preis_activen as pa, Tarif as t, Tarif_has_Preis as tp "+ 
-										   "	where " + 
-										   " tp.Preis_id=p.id and pa.Preis_id=p.id and t.id = tp.Tarif_id and pa.Tarif_id "+
-										   " order by t.id ASC, p.id ASC" );
+		if ( id == 0) {
+			resultSet = statement.executeQuery("select t.id as tId, name, DayNight,DreiPeriod,Jahrzeit, " +
+					   " p.id as pId, Preis,HighDemand,Anfang, End,Wochentag,Sanstag,Sonntag "+
+					   " from Preis as p, Preis_activen as pa, Tarif as t, Tarif_has_Preis as tp "+ 
+					   "	where " +
+					   " tp.Preis_id=p.id and pa.Preis_id=p.id and t.id = tp.Tarif_id and pa.Tarif_id "+
+					   " order by t.id ASC, p.id ASC" );
+		} else {
+			resultSet = statement.executeQuery("select t.id as tId, name, DayNight,DreiPeriod,Jahrzeit, " +
+					   " p.id as pId, Preis,HighDemand,Anfang, End,Wochentag,Sanstag,Sonntag "+
+					   " from Preis as p, Preis_activen as pa, Tarif as t, Tarif_has_Preis as tp "+ 
+					   "	where " +
+					   " t.id = " + id + 
+					   " and tp.Preis_id=p.id and pa.Preis_id=p.id and t.id = tp.Tarif_id and pa.Tarif_id "+
+					   " order by t.id ASC, p.id ASC" );
+		}
 		
 		
 		while (resultSet.next()){
@@ -449,9 +642,10 @@ public class DAO {
 				t.setName(resultSet.getString("name"));
 				sHigh = new SeasonImp();
 				sHigh.setName(Season.HIGH_DEMAND);
-				
+				sHigh.setType(Season.HIGH);
 				sLow = new SeasonImp();
 				sLow.setName(Season.LOW_DEMAND);
+				sLow.setType(Season.LOW);
 				t.setSeason(sLow);
 				t.setSeason(sHigh);
 				tList.add(t);
@@ -498,6 +692,137 @@ public class DAO {
 		return tList;
 	}
 
+	public List<Tarif> getAllTarifsFromJson(int id) throws SQLException{
+		Statement statement;
+		ResultSet resultSet = null;
+		statement = this.getConnection().createStatement();
+		int tIdOld = 0,tIdNeue = 0,pIdOld = 0,pIdNeue = 0;
+		
+		JsonArrayBuilder TarifList = Json.createArrayBuilder();
+		JsonObjectBuilder tarifJson = Json.createObjectBuilder();
+		JsonObjectBuilder seasonHighJson = Json.createObjectBuilder();
+		JsonObjectBuilder seasonLowJson = Json.createObjectBuilder();
+		JsonObjectBuilder preisWocheHigh = Json.createObjectBuilder();
+		
+		
+		Preis pWochentagHigh = null;
+		Preis pSamstagHigh = null;
+		Preis pSonntagHigh = null;
+		
+		Preis pWochentagLow = null;
+		Preis pSamstagLow = null;
+		Preis pSonntagLow = null;
+		
+		Season sHigh = null;
+		Season sLow = null;
+		Tarif t = null;
+		List<Tarif> tList = new ArrayList<Tarif>();
+		
+		
+		if ( id == 0) {
+			resultSet = statement.executeQuery("select t.id as tId, name, DayNight,DreiPeriod,Jahrzeit, " +
+					   " p.id as pId, Preis,HighDemand,Anfang, End,Wochentag,Sanstag,Sonntag "+
+					   " from Preis as p, Preis_activen as pa, Tarif as t, Tarif_has_Preis as tp "+ 
+					   "	where " +
+					   " tp.Preis_id=p.id and pa.Preis_id=p.id and t.id = tp.Tarif_id and pa.Tarif_id "+
+					   " order by t.id ASC, p.id ASC" );
+		} else {
+			resultSet = statement.executeQuery("select t.id as tId, name, DayNight,DreiPeriod,Jahrzeit, " +
+					   " p.id as pId, Preis,HighDemand,Anfang, End,Wochentag,Sanstag,Sonntag "+
+					   " from Preis as p, Preis_activen as pa, Tarif as t, Tarif_has_Preis as tp "+ 
+					   "	where " +
+					   " t.id = " + id + 
+					   " and tp.Preis_id=p.id and pa.Preis_id=p.id and t.id = tp.Tarif_id and pa.Tarif_id "+
+					   " order by t.id ASC, p.id ASC" );
+		}
+		
+		
+		
+		while (resultSet.next()){
+			tIdNeue = resultSet.getInt("tId");
+			if ( tIdNeue != tIdOld){
+					
+				
+				t= new TarifImp();
+				tarifJson = Json.createObjectBuilder();
+				tarifJson.add("name",resultSet.getString("name"));
+				t.setName(resultSet.getString("name"));
+				
+				sHigh = new SeasonImp();
+				seasonHighJson = Json.createObjectBuilder();
+				seasonHighJson.add("name",Season.HIGH_DEMAND);
+				seasonHighJson.add("type",Season.HIGH);
+				sHigh.setName(Season.HIGH_DEMAND);
+				sHigh.setType(Season.HIGH);
+				seasonLowJson = Json.createObjectBuilder();
+				seasonLowJson.add("name",Season.LOW_DEMAND);
+				seasonLowJson.add("type",Season.LOW);
+				sLow = new SeasonImp();
+				sLow.setName(Season.LOW_DEMAND);
+				sLow.setType(Season.LOW);
+				tarifJson.add("high",seasonHighJson);
+				tarifJson.add("low",seasonLowJson);
+				t.setSeason(sLow);
+				t.setSeason(sHigh);
+				TarifList.add(tarifJson);
+				tList.add(t);
+				tIdOld = tIdNeue;
+			}
+			
+			pIdNeue = resultSet.getInt("pId");
+			if (pIdNeue == pIdOld){
+				if ( resultSet.getInt("HighDemand") == 1){
+					populatePreis(resultSet,  pWochentagHigh, pSamstagHigh, pSonntagHigh);
+				}else {
+					populatePreis(resultSet,  pWochentagLow, pSamstagLow, pSonntagLow);
+				}
+				
+		
+			} else {
+				pWochentagHigh = new PreisImp();
+				
+				pSamstagHigh = new PreisImp();
+				pSonntagHigh = new PreisImp();
+				pWochentagLow = new PreisImp();
+				pSamstagLow = new PreisImp();
+				pSonntagLow = new PreisImp();
+				
+				pIdOld = pIdNeue;
+				
+				if ( resultSet.getInt("HighDemand") == 1){
+					populatePreis(resultSet,  pWochentagHigh, pSamstagHigh, pSonntagHigh);
+					seasonHighJson.add("wochentag",pWochentagHigh.getUhrJson());
+					sHigh.setPreis(pWochentagHigh);
+					sHigh.setPreisSamstag(pSamstagHigh);
+					sHigh.setPreisSonntag(pSonntagHigh);
+				}else {
+					populatePreis(resultSet,  pWochentagLow, pSamstagLow, pSonntagLow);
+					sLow.setPreis(pWochentagLow);
+					sLow.setPreisSamstag(pSamstagLow);
+					sLow.setPreisSonntag(pSonntagLow);
+				}
+				
+				
+			}
+			
+		}
+		
+		System.out.println(TarifList.build().toString());
+		return tList;
+	}
+	
+	
+	
+	
+	
+	
+	
+
+	
+	
+	
+	
+	
 	private void populatePreis(ResultSet resultSet, Preis pWochentag,Preis pSanstag,Preis pSonntag)
 			throws SQLException {
 		if ( resultSet.getInt("Wochentag") == 1){

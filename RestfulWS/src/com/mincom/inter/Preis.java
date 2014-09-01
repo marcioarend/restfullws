@@ -2,6 +2,8 @@ package com.mincom.inter;
 
 import java.sql.Time;
 
+import javax.json.JsonArrayBuilder;
+
 public interface Preis {
 
 	public void setGueltigkeit(Time uhrAnfang, Time uhrEnd);
@@ -19,4 +21,7 @@ public interface Preis {
 	public void setGebuehr(double gebuehr);
 
 	public double getGebuehr();
+	
+	public JsonArrayBuilder getUhrJson();
+	
 }
