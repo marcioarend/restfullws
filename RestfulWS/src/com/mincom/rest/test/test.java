@@ -26,44 +26,46 @@ public class test {
 //		System.out.println(jsonObj.toString());
 		
 		
-		List<Tarif> tarifs =dao.getAllTarifsFromDB(0);
-		for (Iterator iterator = tarifs.iterator(); iterator.hasNext();) {
-			Tarif tarif = (Tarif) iterator.next();
-			System.out.println(tarif.getTarifJson().build().toString());
-			
-		}
+		dao.getBetrag();
 		
-		
-		
-//		Collection<Integer[]> l = dao.getAllKundeTarif();
-//		List<Tarif> tarifs =dao.getAllTarifsFromDB();
-//		Tarif tar1 = tarifs.get(0);
-//		Tarif tar2 = tarifs.get(1);
-//		Tarif tar3 = tarifs.get(2);
-//		
-//		for (Iterator iterator = l.iterator(); iterator.hasNext();) {
-//			Integer[] integers = (Integer[]) iterator.next();
-//			int kundeId = integers[0];
-//			int tarifId = integers[1];
-//			System.out.println("Kunde " + kundeId + " Tarif " + tarifId);
-//			
-//			List<SimulationBO> simulationBOs = dao.getAllSimulationFurKunde(kundeId,"2013-01-01","2013-12-31");
-//			// @TODO tarifas fixas para test
-//			double totalTarif1 = 0;
-//			double totalTarif2 = 0;
-//			double totalTarif3 = 0;
-//			double watt = 0;
-//
-//			for (SimulationBO simulationBO : simulationBOs) {
-//				watt += simulationBO.getWert();
-//				totalTarif1 += tar1.getPreis(simulationBO.getZeit(), simulationBO.getDate()).getPreis() * simulationBO.getWert();
-//				totalTarif2 += tar2.getPreis(simulationBO.getZeit(), simulationBO.getDate()).getPreis() * simulationBO.getWert();
-//				totalTarif3 += tar3.getPreis(simulationBO.getZeit(), simulationBO.getDate()).getPreis() * simulationBO.getWert();
-//			}
-//			//CreateBetrage(dao, kundeId, totalTarif1, totalTarif2, totalTarif3,	watt);
-//			System.out.println("Total " + totalTarif1 + " total fix " + totalTarif2 + " total " + totalTarif3);	
+//		List<Tarif> tarifs =dao.getAllTarifsFromDB(0);
+//		for (Iterator iterator = tarifs.iterator(); iterator.hasNext();) {
+//			Tarif tarif = (Tarif) iterator.next();
+//			System.out.println(tarif.getTarifJson().build().toString());
 //			
 //		}
+		
+		
+		
+		Collection<Integer[]> l = dao.getAllKundeTarif();
+		List<Tarif> tarifs =dao.getAllTarifsFromDB(0);
+		Tarif tar1 = tarifs.get(0);
+		Tarif tar2 = tarifs.get(1);
+		Tarif tar3 = tarifs.get(2);
+		
+		for (Iterator iterator = l.iterator(); iterator.hasNext();) {
+			Integer[] integers = (Integer[]) iterator.next();
+			int kundeId = integers[0];
+			int tarifId = integers[1];
+			System.out.println("Kunde " + kundeId + " Tarif " + tarifId);
+			
+			List<SimulationBO> simulationBOs = dao.getAllSimulationFurKunde(kundeId,"2013-01-01","2013-12-31");
+			// @TODO tarifas fixas para test
+			double totalTarif1 = 0;
+			double totalTarif2 = 0;
+			double totalTarif3 = 0;
+			double watt = 0;
+
+			for (SimulationBO simulationBO : simulationBOs) {
+				watt += simulationBO.getWert();
+				totalTarif1 += tar1.getPreis(simulationBO.getZeit(), simulationBO.getDate()).getPreis() * simulationBO.getWert();
+				totalTarif2 += tar2.getPreis(simulationBO.getZeit(), simulationBO.getDate()).getPreis() * simulationBO.getWert();
+				totalTarif3 += tar3.getPreis(simulationBO.getZeit(), simulationBO.getDate()).getPreis() * simulationBO.getWert();
+			}
+			CreateBetrage(dao, kundeId, totalTarif1, totalTarif2, totalTarif3,	watt);
+			System.out.println("T1 " + totalTarif1 + " T2 " + totalTarif2 + " T3 " + totalTarif3);	
+			
+		}
 
 	}
 

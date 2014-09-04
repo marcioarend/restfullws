@@ -22,7 +22,13 @@ myApp.config([ '$routeProvider', function($routeProvider) {
 	}).when('/bericht',{
 		templateUrl : '/RestfulWS/Partials/bericht/bericht.html',
 		controller : 'crtlBericht'
-	})	
+	}).when('/tarifKunde',{
+		templateUrl : '/RestfulWS/Partials/bericht/tarifKunde.html',
+		controller : 'crtlBericht'
+	}).when('/tarifvergleichen',{
+		templateUrl : '/RestfulWS/Partials/bericht/tarifvergleichen.html',
+		controller : 'crtlBericht'
+	})			
 	.otherwise({
 		redirectTo : '/'
 	});
@@ -72,10 +78,17 @@ myApp.factory('RESTConnection', function($resource,headersFactory){
 				url:defaultUrlBericht + "gesamtumsatz",
 				isArray:false
 				},
-		'getTarif':{
+		'getTarifKunde':{
 				method:'GET',
 				hedaders:headersFactory,
-				url:defaultUrlTarif + "allTarife",
+				url:defaultUrlBericht + "kundetarifverbrauch",
+				isArray:false
+				},		
+		'getTarif':{
+				method:'GET',
+				params:{id:'@id'},
+				hedaders:headersFactory,
+				url:defaultUrlTarif + "tarif/:id" ,
 				isArray:false
 				},		
 		'getSLP':{
@@ -164,6 +177,98 @@ myApp.controller('crtlBericht',['$scope','RESTConnection',function($scope,RESTCo
 		$scope.berichts=data.values;
 	});
 	
+	RESTConnection.getTarifKunde(function(data){
+		
+		$scope.kundeTarifen=data.values;
+		var temp = data.values;
+		
+		var TarifTotal = function(){
+			var w = 0;
+			var gesamt = 0;
+			var id = 0;
+			this.setId = function(value){
+				id = value;
+			}
+			
+			this.getId = function(){
+				return id;
+			}
+			
+			this.addWatt = function(value){
+				 w += value;
+			}
+			
+			this.getWatt = function(){
+				return w;
+			}
+			
+			this.addGesamt = function(value){
+				  gesamt += value;
+			}
+			
+			
+			this.getGesamt = function(){
+				  return gesamt;
+			}
+		}
+		var tarifen = [];
+		
+		tarifen[0] = new TarifTotal();
+		tarifen[1] = new TarifTotal();
+		tarifen[2] = new TarifTotal();
+		for (i=0; i < temp.length; i++){
+			tarifen[0].setId(temp[i].values[0].id);
+			tarifen[0].addWatt(temp[i].values[0].kw);
+			tarifen[0].addGesamt( temp[i].values[0].gesamt);
+			tarifen[1].setId(temp[i].values[1].id);
+			tarifen[1].addWatt(temp[i].values[1].kw);
+			tarifen[1].addGesamt( temp[i].values[1].gesamt);
+			tarifen[2].setId(temp[i].values[2].id);
+			tarifen[2].addWatt(temp[i].values[2].kw);
+			tarifen[2].addGesamt( temp[i].values[2].gesamt);
+		}
+		
+		
+		var T1 = {mehr:0,weniger:0,gleiche:0,namesMehr:[],namesWeniger:[],namesGleiche:[]};
+		var T2 = {mehr:0,weniger:0,gleiche:0,namesMehr:[],namesWeniger:[],namesGleiche:[]};
+		var T3 = {mehr:0,weniger:0,gleiche:0,namesMehr:[],namesWeniger:[],namesGleiche:[]};
+		
+		var vergleich = function(value1,value2,T,obj){
+			if(value1<value2){
+				T.mehr++;
+				T.namesMehr.push({"name":obj.g});
+			}else if (value1>value2 ){
+				T.weniger++;
+				T.namesWeniger.push({"name":obj.g} );
+			} else {
+				T.gleiche++;
+				T.namesGleiche.push({"name":obj.g});
+			}
+			
+		}
+
+		
+		
+		console.log(tarifen);
+		for (i=0; i < temp.length; i++){
+			vergleich( temp[i].values[0].gesamt, temp[i].values[0].gesamt,T1,temp[i]);
+			vergleich( temp[i].values[0].gesamt, temp[i].values[1].gesamt,T2,temp[i]);
+			vergleich( temp[i].values[0].gesamt, temp[i].values[2].gesamt,T3,temp[i]);
+			
+			
+		}
+		
+		
+		
+		$scope.T1 = T1;
+		$scope.T2 = T2;
+		$scope.T3 = T3;
+		
+		
+		
+	});
+	
+	
 }])
 
 
@@ -172,7 +277,6 @@ myApp.controller('crtlLogin', ['$scope','$location','headersFactory','RESTConnec
 	
 	
 		
-	loadTarifFromRest(RESTConnection);
 	
 	$scope.functionLogin = function(){
 		var login = RESTConnection;
@@ -416,7 +520,7 @@ myApp.factory("loadTarifFromRest", function(RESTConnection) {
 	var highSeason = new Season();
 	var lowSeason = new Season();
 	var tarif = new Tarif();
-	tarifRest.getTarif().$promise.then(
+	tarifRest.getTarif({id:1}).$promise.then(
 			function(value){
 				var tarifObj = angular.fromJson(value);
 				var highDemandTemp = tarifObj.HighDemand;

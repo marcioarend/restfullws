@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.GenericEntity;
 
@@ -25,13 +26,11 @@ public class TarifResource {
 	
 	
 	@GET
-	@Path("allTarife")
+	@Path("tarif/{id}")
 	@Produces("application/json")
-	public String  getSLPs(){
+	public String  getSLPs(@PathParam("id") int id){
 		try {
-			List<Tarif> tarifs =dao.getAllTarifsFromDB(1);
-			
-			
+			List<Tarif> tarifs =dao.getAllTarifsFromDB(id);
 			return tarifs.get(0).getTarifJson().build().toString();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block

@@ -14,13 +14,8 @@ import java.util.List;
 import java.util.Map;
 
 import javax.json.Json;
-import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
-import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
-
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
 import com.mincom.impl.PreisImp;
 import com.mincom.impl.SeasonImp;
@@ -29,7 +24,15 @@ import com.mincom.inter.Preis;
 import com.mincom.inter.Season;
 import com.mincom.inter.Tarif;
 import com.mincom.inter.TarifVariabelInter;
-import com.mincom.rest.bo.*;
+import com.mincom.rest.bo.DatumBO;
+import com.mincom.rest.bo.GeschaeftBO;
+import com.mincom.rest.bo.KundeBO;
+import com.mincom.rest.bo.PreisBO;
+import com.mincom.rest.bo.SLPBO;
+import com.mincom.rest.bo.SimulationBO;
+import com.mincom.rest.bo.TarifBO;
+import com.mincom.rest.bo.TarifVariabelBO;
+import com.mincom.rest.bo.WertBO;
 
 public class DAO {
 	private Connection connection = null;
@@ -566,6 +569,52 @@ public class DAO {
 		
 		
 	}
+	
+	
+	public JsonArrayBuilder getBetrag() throws SQLException {
+		Statement statement;
+		JsonArrayBuilder listKunde = Json.createArrayBuilder();
+		JsonArrayBuilder listWerte = Json.createArrayBuilder();
+		JsonObjectBuilder kunde = null;
+		JsonObjectBuilder wert = Json.createObjectBuilder();
+		
+		
+		ResultSet rs = null;
+		statement = this.getConnection().createStatement();
+		rs = statement.executeQuery("SELECT * FROM " + " "
+				+ "betrag as b, Kunde as k, Geschaeft as g where g.id = k.Geschaeft_id "
+				+ "and b.Kunde_id = k.id order by b.Kunde_id, b.Tarif_id");
+		
+		int oldId=0;
+		int newId=0;
+		double totalkwT1 = 0;
+		double totalkwT2 = 0;
+		double totalkwT3 = 0;
+		
+			
+		while (rs.next()) {
+			newId= rs.getInt("Kunde_id");
+			if(newId != oldId){
+				if ( kunde != null){
+					kunde.add("values", listWerte);
+					listKunde.add(kunde);
+				}
+				oldId = newId;
+				listWerte = Json.createArrayBuilder();
+				kunde = Json.createObjectBuilder();
+				kunde.add("id",oldId);
+				kunde.add("g" , rs.getString("g.Name"));
+			}
+			wert = Json.createObjectBuilder();
+			wert.add("id",rs.getInt("Tarif_id"));
+			wert.add("kw",rs.getDouble("kw"));
+			wert.add("gesamt",rs.getDouble("gesamt"));
+			listWerte.add(wert);
+		}
+		return listKunde;
+		
+	}
+	
 	
 	public Collection<Integer[]> getAllKundeTarif() throws SQLException{
 		Statement statement;

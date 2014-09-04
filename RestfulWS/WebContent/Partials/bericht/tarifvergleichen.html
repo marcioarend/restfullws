@@ -1,0 +1,65 @@
+<div class="small-3 columns">
+      <label>Tarife
+<!--       
+      <select ng-model="tarifModel" ng-options="tarif in tarife" ng-change="tarifonchange()">
+        <option value="">-- Tarife --</option>
+      </select>
+ -->      
+      </label>
+    </div>
+
+
+<div class="row">
+    <div class="small-12 columns">
+      <table align="center" > 
+        <thead> 
+          <tr>
+            <th width="200" colspan="2"> Kunde</th>  
+            <th width="200" colspan="2"> T1</th> 
+            <th width="200" colspan="2"> T2</th> 
+            <th width="200" colspan="2"> T3</th> 
+          </tr> 
+        </thead> 
+        <tbody> 
+
+          <tr >
+          	 <td colspan="2" >---</td> 
+              <td>Anzahl der Kunden</td><td>%</td>
+              <td>Anzahl der Kunden</td><td>%</td>    
+              <td>Anzahl der Kunden</td><td>%</td>   
+           </tr>
+           
+           <tr >
+          	 <td colspan="2" ><a href="" ng-show="!showCars" ng-click="showCars=!showCars">+</a>
+          					 <a href="" ng-show="showCars" ng-click="showCars=!showCars">-</a></td> 
+              <td>{{T1.mehr}}</td><td>20%</td>
+              <td>{{T2.mehr}}</td><td>20%</td>
+              <td>{{T3.mehr}}</td><td>20%</td>
+           </tr>
+           <tbody>
+           <!--  @TODO COLOCAR NA ORDEM CERTA -->
+           <tr ng-show="showCars" ng-repeat="(k, v)  in T1.namesGleiche">
+          	  <td colspan="2" >-</td>
+              <td></td><td>20%</td>
+              <td></td><td>20%</td>
+              <td>{{v.name}}</td><td>20%</td>
+           </tr>
+           
+           <tr >
+          	 <td colspan="2" >-</td> 
+              <td>{{T1.weniger}}</td><td>30%</td>
+              <td>{{T2.weniger}}</td><td>30%</td>
+              <td>{{T3.weniger}}</td><td>30%</td>
+           </tr>
+           <tr >
+          	 <td colspan="2" >=</td> 
+              <td>{{T1.gleiche}}</td><td>50%</td>
+              <td>{{T2.gleiche}}</td><td>50%</td>
+              <td>{{T3.gleiche}}</td><td>50%</td>
+           </tr>
+           
+           
+          </tbody> 
+        </table>
+    </div>    
+  </div>	
