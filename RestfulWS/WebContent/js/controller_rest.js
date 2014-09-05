@@ -171,98 +171,83 @@ myApp.factory("success", function(){
 });
 
 
-myApp.controller('crtlBericht',['$scope','RESTConnection',function($scope,RESTConnection){
+
+myApp.factory("kundeTarif",function(){
+	var temp = [];
+	var functions = {};
+	
+	functions.setData = function(value){
+		temp = value;
+	}
+	
+	functions.getData = function(){
+		return temp;
+	}
+	
+	return functions;
+})
+
+myApp.controller('crtlBericht',['$scope','RESTConnection','kundeTarif',function($scope,RESTConnection,kundeTarif){
+	
+	var vergleich = function(value1,value2,T){
+		if(value1<value2){
+			T.mehr();
+			var  r = (((value2)/value1) -1)*100;
+			if ( r >= 10){
+				T.mehrAls10();
+			}
+		}else if (value1>value2 ){
+			T.weniger();
+			var  r = (((value1)/value2) -1)*100;
+			if ( r >= 10){
+				T.wenigerAls90();
+			}
+		} else {
+			T.gleiche();
+		}
+		
+	}
+	
+	
+	
+	
+	$scope.tarifonchange = function(){
+		var tarifIdZuVergleichen = $scope.tarifModel;
+		var T1 = new tarifKunde();
+		var T2 = new tarifKunde();
+		var T3 = new tarifKunde();
+		
+		if ( tarifIdZuVergleichen != "*"){
+			var temp = kundeTarif.getData();
+			for (i=0; i < temp.length; i++){
+				vergleich( temp[i].values[tarifIdZuVergleichen].gesamt, temp[i].values[0].gesamt,T1);
+				vergleich( temp[i].values[tarifIdZuVergleichen].gesamt, temp[i].values[1].gesamt,T2);	
+				vergleich( temp[i].values[tarifIdZuVergleichen].gesamt, temp[i].values[2].gesamt,T3);
+			}
+			T1.setKunde(temp.length);
+			T2.setKunde(temp.length);
+			T3.setKunde(temp.length);
+		}
+
+		$scope.T1 = T1;
+		$scope.T2 = T2;
+		$scope.T3 = T3;
+		
+		
+	}
+	
 	
 	RESTConnection.getGesamtumsatz(function(data){
 		$scope.berichts=data.values;
 	});
 	
 	RESTConnection.getTarifKunde(function(data){
-		
+		kundeTarif.setData(data.values);
 		$scope.kundeTarifen=data.values;
 		var temp = data.values;
 		
-		var TarifTotal = function(){
-			var w = 0;
-			var gesamt = 0;
-			var id = 0;
-			this.setId = function(value){
-				id = value;
-			}
-			
-			this.getId = function(){
-				return id;
-			}
-			
-			this.addWatt = function(value){
-				 w += value;
-			}
-			
-			this.getWatt = function(){
-				return w;
-			}
-			
-			this.addGesamt = function(value){
-				  gesamt += value;
-			}
-			
-			
-			this.getGesamt = function(){
-				  return gesamt;
-			}
-		}
-		var tarifen = [];
-		
-		tarifen[0] = new TarifTotal();
-		tarifen[1] = new TarifTotal();
-		tarifen[2] = new TarifTotal();
-		for (i=0; i < temp.length; i++){
-			tarifen[0].setId(temp[i].values[0].id);
-			tarifen[0].addWatt(temp[i].values[0].kw);
-			tarifen[0].addGesamt( temp[i].values[0].gesamt);
-			tarifen[1].setId(temp[i].values[1].id);
-			tarifen[1].addWatt(temp[i].values[1].kw);
-			tarifen[1].addGesamt( temp[i].values[1].gesamt);
-			tarifen[2].setId(temp[i].values[2].id);
-			tarifen[2].addWatt(temp[i].values[2].kw);
-			tarifen[2].addGesamt( temp[i].values[2].gesamt);
-		}
 		
 		
-		var T1 = {mehr:0,weniger:0,gleiche:0,namesMehr:[],namesWeniger:[],namesGleiche:[]};
-		var T2 = {mehr:0,weniger:0,gleiche:0,namesMehr:[],namesWeniger:[],namesGleiche:[]};
-		var T3 = {mehr:0,weniger:0,gleiche:0,namesMehr:[],namesWeniger:[],namesGleiche:[]};
-		
-		var vergleich = function(value1,value2,T,obj){
-			if(value1<value2){
-				T.mehr++;
-				T.namesMehr.push({"name":obj.g});
-			}else if (value1>value2 ){
-				T.weniger++;
-				T.namesWeniger.push({"name":obj.g} );
-			} else {
-				T.gleiche++;
-				T.namesGleiche.push({"name":obj.g});
-			}
-			
-		}
-
-		
-		
-		console.log(tarifen);
-		for (i=0; i < temp.length; i++){
-			vergleich( temp[i].values[0].gesamt, temp[i].values[0].gesamt,T1,temp[i]);
-			vergleich( temp[i].values[0].gesamt, temp[i].values[1].gesamt,T2,temp[i]);
-			vergleich( temp[i].values[0].gesamt, temp[i].values[2].gesamt,T3,temp[i]);
-			
-			
-		}
-		
-		
-		
-		$scope.T1 = T1;
-		$scope.T2 = T2;
-		$scope.T3 = T3;
 		
 		
 		
@@ -270,6 +255,68 @@ myApp.controller('crtlBericht',['$scope','RESTConnection',function($scope,RESTCo
 	
 	
 }])
+
+var tarifKunde = function(){
+	var anzahlKunde = 0;
+	var mehr = 0;
+	var weniger = 0;
+	var gleiche = 0;
+	var mehrAls10 = 0;
+	var wenigerAls90 = 0;
+	this.mehr = function(){
+		mehr++;
+	}
+	this.getMehr = function(){
+		return mehr;
+	}
+	this.weniger = function(){
+		weniger ++;
+	}
+	this.getWeniger = function(){
+		return weniger;
+	}
+	this.gleiche = function(){
+		gleiche ++;
+	}
+	this.getGleiche = function(){
+		return gleiche;
+	}
+	this.mehrAls10 = function(){
+		mehrAls10 ++;
+	}
+	
+	this.getMehrAls10 = function(){
+		return mehrAls10;
+	}
+	
+	this.getMehrAls10Prozent = function(){
+		return (mehrAls10/anzahlKunde)*100;
+	}
+	this.wenigerAls90 = function(){
+		wenigerAls90 ++;
+	}
+	
+	this.getWenigerAls90 = function(){
+		return wenigerAls90;
+	}
+	
+	this.getWenigerAls90Prozent = function(){
+		return (wenigerAls90/anzahlKunde)*100;
+	}
+	this.getMehrInProzent = function(){
+		return (mehr/anzahlKunde)*100;
+	}
+	this.getWenigerInProzent = function(){
+		return (weniger/anzahlKunde)*100;
+	}
+	this.getGleicheInProzent = function(){
+		return (gleiche/anzahlKunde)*100;
+	}
+	this.setKunde = function(value){
+		anzahlKunde = value;
+	}
+}
+
 
 
 myApp.controller('crtlLogin', ['$scope','$location','headersFactory','RESTConnection','success','errors', 

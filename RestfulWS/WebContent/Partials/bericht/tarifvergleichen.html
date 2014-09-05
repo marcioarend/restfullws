@@ -1,10 +1,13 @@
 <div class="small-3 columns">
       <label>Tarife
-<!--       
-      <select ng-model="tarifModel" ng-options="tarif in tarife" ng-change="tarifonchange()">
-        <option value="">-- Tarife --</option>
+       
+      <select ng-model="tarifModel"  ng-change="tarifonchange()">
+        <option value="*">-- Tarife --</option>
+        <option value="0">ToU</option>
+        <option value="1">Tag und Nacht</option>
+        <option value="2">Pauschal</option>
       </select>
- -->      
+      
       </label>
     </div>
 
@@ -14,10 +17,10 @@
       <table align="center" > 
         <thead> 
           <tr>
-            <th width="200" colspan="2"> Kunde</th>  
-            <th width="200" colspan="2"> T1</th> 
-            <th width="200" colspan="2"> T2</th> 
-            <th width="200" colspan="2"> T3</th> 
+            <th width="250" colspan="2"> </th>  
+            <th width="200" colspan="2"> ToU </th> 
+            <th width="200" colspan="2"> Tag und Nacht</th> 
+            <th width="200" colspan="2"> Pauschal</th> 
           </tr> 
         </thead> 
         <tbody> 
@@ -30,32 +33,39 @@
            </tr>
            
            <tr >
-          	 <td colspan="2" ><a href="" ng-show="!showCars" ng-click="showCars=!showCars">+</a>
-          					 <a href="" ng-show="showCars" ng-click="showCars=!showCars">-</a></td> 
-              <td>{{T1.mehr}}</td><td>20%</td>
-              <td>{{T2.mehr}}</td><td>20%</td>
-              <td>{{T3.mehr}}</td><td>20%</td>
+          	 <td colspan="2" >Mehr Bezahlen <a href="" ng-show="!showMehrAls10" ng-click="showMehrAls10=!showMehrAls10">(10%)</a></td>
+              <td>{{T1.getMehr()}}</td><td>{{T1.getMehrInProzent() | number:2}}%</td>
+              <td>{{T2.getMehr()}}</td><td>{{T2.getMehrInProzent() | number:2}}%</td>
+              <td>{{T3.getMehr()}}</td><td>{{T3.getMehrInProzent() | number:2}}%</td>
            </tr>
            <tbody>
-           <!--  @TODO COLOCAR NA ORDEM CERTA -->
-           <tr ng-show="showCars" ng-repeat="(k, v)  in T1.namesGleiche">
-          	  <td colspan="2" >-</td>
-              <td></td><td>20%</td>
-              <td></td><td>20%</td>
-              <td>{{v.name}}</td><td>20%</td>
+           <tr ng-show="showMehrAls10" >
+          	  <td colspan="2" >Mehr als 10% <a href="" ng-show="showMehrAls10" ng-click="showMehrAls10=!showMehrAls10">close</a></td>
+              <td>{{T1.getMehrAls10()}}</td><td>{{T1.getMehrAls10Prozent()| number:2}}%</td>
+              <td>{{T2.getMehrAls10()}}</td><td>{{T2.getMehrAls10Prozent()| number:2}}%</td>
+              <td>{{T3.getMehrAls10()}}</td><td>{{T3.getMehrAls10Prozent()| number:2}}%</td>
            </tr>
            
            <tr >
-          	 <td colspan="2" >-</td> 
-              <td>{{T1.weniger}}</td><td>30%</td>
-              <td>{{T2.weniger}}</td><td>30%</td>
-              <td>{{T3.weniger}}</td><td>30%</td>
+          	 <td colspan="2" >Weniger Bezahlen <a href="" ng-show="!showWenigerAls90" ng-click="showWenigerAls90=!showWenigerAls90">(90%)</a>
+          					 </td> 
+              <td>{{T1.getWeniger()}}</td><td>{{T1.getWenigerInProzent() | number:2}}%</td>
+              <td>{{T2.getWeniger()}}</td><td>{{T2.getWenigerInProzent() | number:2}}%</td>
+              <td>{{T3.getWeniger()}}</td><td>{{T3.getWenigerInProzent() | number:2}}%</td>
            </tr>
+            <tr ng-show="showWenigerAls90" >
+          	  <td colspan="2" >Weniger als 90% <a href="" ng-show="showWenigerAls90" ng-click="showWenigerAls90=!showWenigerAls90">close</a></td>
+              <td>{{T1.getWenigerAls90()}}</td><td>{{T1.getWenigerAls90Prozent()| number:2}}%</td>
+              <td>{{T2.getWenigerAls90()}}</td><td>{{T2.getWenigerAls90Prozent()| number:2}}%</td>
+              <td>{{T3.getWenigerAls90()}}</td><td>{{T3.getWenigerAls90Prozent()| number:2}}%</td>
+           </tr>
+           
+           
            <tr >
-          	 <td colspan="2" >=</td> 
-              <td>{{T1.gleiche}}</td><td>50%</td>
-              <td>{{T2.gleiche}}</td><td>50%</td>
-              <td>{{T3.gleiche}}</td><td>50%</td>
+          	 <td colspan="2" >Gleiche Bezahlen</td> 
+              <td>{{T1.getGleiche()}}</td><td>{{T1.getGleicheInProzent() | number:2}}%</td>
+              <td>{{T2.getGleiche()}}</td><td>{{T2.getGleicheInProzent() | number:2}}%</td>
+              <td>{{T3.getGleiche()}}</td><td>{{T3.getGleicheInProzent() | number:2}}%</td>
            </tr>
            
            
