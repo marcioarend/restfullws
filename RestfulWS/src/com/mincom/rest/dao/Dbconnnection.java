@@ -7,9 +7,9 @@ import java.sql.SQLException;
 public class Dbconnnection {
 
 	private static Connection connection= null;
-	private static String server = "localhost";
-	private static String user = "root";
-	private static String pwd = "123456";
+	private static String server = "192.168.178.27";
+	private static String user = "marcio";
+	private static String pwd = "nativo32";
 	
 	private static Dbconnnection dbconnnection = null;
 	

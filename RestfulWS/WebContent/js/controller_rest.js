@@ -11,8 +11,8 @@ myApp.factory('headersFactory',function(){
 
 myApp.config([ '$routeProvider', function($routeProvider) {
 	$routeProvider.when('/', {
-		templateUrl : '/RestfulWS/Partials/Login/login_part.html',
-		controller : 'crtlLogin'
+		templateUrl : '/RestfulWS/Partials/SLP/comparation.html',
+		controller : 'ComparationCtrl'
 	}).when('/comparation',{
 		templateUrl : '/RestfulWS/Partials/SLP/comparation.html',
 		controller : 'ComparationCtrl'
@@ -33,16 +33,6 @@ myApp.config([ '$routeProvider', function($routeProvider) {
 		redirectTo : '/'
 	});
 }]);
-
-
-
-
-
-
-
-
-
-
 
 myApp.factory('RESTConnection', function($resource,headersFactory){
 	var defaultUrl = '/RestfulWS/service/';
@@ -594,6 +584,79 @@ myApp.factory("loadTarifFromRest", function(RESTConnection) {
 	
 })
 
+
+myApp.factory("loadTarifFromRest2", function(RESTConnection) {
+	
+	var tarifRest = RESTConnection;
+	var highSeason = new Season();
+	var lowSeason = new Season();
+	var tarif = new Tarif();
+	tarifRest.getTarif({id:2}).$promise.then(
+			function(value){
+				var tarifObj = angular.fromJson(value);
+				var highDemandTemp = tarifObj.HighDemand;
+				var lowDemandTemp  = tarifObj.LowDemand;
+				highSeason.setWochentagJson(highDemandTemp.wochentag);
+				highSeason.setSamstagJson(highDemandTemp.samstag)
+				highSeason.setSonntagJson(highDemandTemp.sonntag);
+				highSeason.setType(highDemandTemp.type);
+				
+				lowSeason.setWochentagJson(lowDemandTemp.wochentag);
+				lowSeason.setSamstagJson(lowDemandTemp.samstag);
+				lowSeason.setSonntagJson(lowDemandTemp.sonntag);
+				lowSeason.setType(lowDemandTemp.type);
+				
+				tarif.setSeason(highSeason);
+				tarif.setSeason(lowSeason);
+				tarif.setBeginEndSeason(tarifObj.monateAnfang, tarifObj.monateEnde);
+				tarif.setName(tarifObj.name);
+	
+			}
+	
+	)
+	return tarif;
+	
+})
+
+
+myApp.factory("loadTarifFromRest3", function(RESTConnection) {
+	
+	var tarifRest = RESTConnection;
+	var highSeason = new Season();
+	var lowSeason = new Season();
+	var tarif = new Tarif();
+	tarifRest.getTarif({id:3}).$promise.then(
+			function(value){
+				var tarifObj = angular.fromJson(value);
+				var highDemandTemp = tarifObj.HighDemand;
+				var lowDemandTemp  = tarifObj.LowDemand;
+				highSeason.setWochentagJson(highDemandTemp.wochentag);
+				highSeason.setSamstagJson(highDemandTemp.samstag)
+				highSeason.setSonntagJson(highDemandTemp.sonntag);
+				highSeason.setType(highDemandTemp.type);
+				
+				lowSeason.setWochentagJson(lowDemandTemp.wochentag);
+				lowSeason.setSamstagJson(lowDemandTemp.samstag);
+				lowSeason.setSonntagJson(lowDemandTemp.sonntag);
+				lowSeason.setType(lowDemandTemp.type);
+				
+				tarif.setSeason(highSeason);
+				tarif.setSeason(lowSeason);
+				tarif.setBeginEndSeason(tarifObj.monateAnfang, tarifObj.monateEnde);
+				tarif.setName(tarifObj.name);
+	
+			}
+	
+	)
+	return tarif;
+	
+})
+
+
+
+
+
+
 //************************ comparation ****************************
 
 myApp.filter('percentage', ['$filter', function ($filter) {
@@ -821,7 +884,7 @@ myApp.factory("TarifFactory",function(){
 
 
 
-myApp.controller("ComparationCtrl", function($scope,$http,RESTConnection,TarifFactory,profilesData,SPL,loadTarifFromRest){
+myApp.controller("ComparationCtrl", function($scope,$http,RESTConnection,TarifFactory,profilesData,SPL,loadTarifFromRest,loadTarifFromRest2,loadTarifFromRest3){
 	
 	var connection = RESTConnection;
 	
@@ -835,12 +898,9 @@ myApp.controller("ComparationCtrl", function($scope,$http,RESTConnection,TarifFa
 	
 	$scope.profilonchange = function(){
 		var MiniFlex =loadTarifFromRest;
-//		console.log(MiniFlex);
-//		MiniFlex.setName("MiniFlex");
-//		var fixTarifin = TarifFactory.getTarif(2);
-//		fixTarifin.setName("Fix Tarif");
-//		var tagUndNachtTarif = TarifFactory.getTarif(3);
-//		tagUndNachtTarif.setName("Tag und Nacht");
+		var fixTarifin = loadTarifFromRest3;
+		var tagUndNachtTarif = loadTarifFromRest2;
+
 		$scope.totalFix = 0;
 		$scope.totalMiniFlex = 0;
 		$scope.totalTagUndNacht = 0;
@@ -859,6 +919,8 @@ myApp.controller("ComparationCtrl", function($scope,$http,RESTConnection,TarifFa
 					for (var j=0; j < werten.length   ; j++) {
 //							 console.log(" Zeit " + werten[j].z  + " Wert "+ werten[j].w + " date " + datum)
 							 summeMiniFlex +=  MiniFlex.calculate(datum,werten[j].z,werten[j].w);
+							 summePauschalpreis += fixTarifin.calculate(datum,werten[j].z,werten[j].w); 
+							 summeTagUndNacht += tagUndNachtTarif.calculate(datum,werten[j].z,werten[j].w); 
 							 watt += werten[j].w * 1;
 					};
 
